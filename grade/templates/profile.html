@@ -1,0 +1,40 @@
+{% extends "__bass.html" %}
+{% block title %} {{ user.username }} profile {% endblock %}
+{% block contant %}
+    <div class="container my-4">
+        <div class="row">
+            <div class="list-group col col-lg-6">
+                <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">My Notes</h5>
+                        {#                        <small>3 days ago</small>#}
+                    </div>
+                    {#                    <p class="mb-1"> my knots</p>#}
+                    {#                    <small>Donec id elit non mi porta.</small>#}
+                </a>
+                {% if notes %}
+                    {% for note in notes %}
+                        <a href="#"
+                           class="list-group-item list-group-item-action flex-column align-items-start list-group-item-{{ note.note_type.tag }}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ note.note }}</h5>
+                                <small>{{ note.note_date }}</small>
+                            </div>
+                            {#                        <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus#}
+                            {#                            varius#}
+                            {#                            blandit.</p>#}
+                            {#                        <small class="text-muted">Donec id elit non mi porta.</small>#}
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <a href="#"
+                       class="list-group-item list-group-item-action flex-column align-items-start bg-{{ note.note_type.tag }}">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h4 class="mb-1">There are no notes yet...</h4>
+                        </div>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

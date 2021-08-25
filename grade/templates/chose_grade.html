@@ -1,0 +1,35 @@
+{% extends "__bass.html" %}
+{% block title %} chose a grade {% endblock %}
+{% block contant %}
+
+    <div class="container  my-4">
+        <div class="row">
+            <div class="col-lg-6">
+                <form>
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <select class="form-select" aria-label="Grade" name="grade">
+                            {% for grade in grades %}
+                                <option value="{{ grade.id }}">{{ grade.grade }}</option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <select class="form-select" aria-label="Section" name="section">
+                            {% for section in sections %}
+                                <option value="{{ section.id }}">{{ section.section }}</option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+
+{% endblock %}

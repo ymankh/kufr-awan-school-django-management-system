@@ -1,0 +1,33 @@
+{% extends "__bass.html" %}
+{% load static %}
+{% block title %}Login{% endblock %}
+{% block contant %}
+    <div class="container mt-4 mb-4">
+        <div class="row">
+            <div class="col-lg-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="NationalID" class="form-label">National ID</label>
+                        <input type="text" class="form-control" id="NationalID" aria-describedby="NationalIDHelp" name="NationalID">
+{#                        <div id="NationalIDHelp" class="form-text">We'll never share your email with anyone else.</div>#}
+                    </div>
+                    <div class="mb-3">
+                        <label for="Password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="Password" name="password">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                        <label class="form-check-label" for="exampleCheck1">Check me out</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <img src="{% static "img/238137391_3999226456867100_1294521852994016276_n.jpg" %}" alt=""
+                     class="img-fluid">
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
