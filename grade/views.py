@@ -49,7 +49,7 @@ def profile(request):
     national_id = request.user.username
     student = Student.objects.get(national_id=national_id)
     notes = StudentNote.objects.filter(student=student)
-    return render(request, "profile.html", {"notes": notes, "time_now": timezone.now()})
+    return render(request, "profile.html", {"notes": notes, "time_now": timezone.now(),"student": student})
 
 
 def students_table(request, grade_id, section_id):

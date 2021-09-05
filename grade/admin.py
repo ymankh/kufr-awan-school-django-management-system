@@ -40,6 +40,14 @@ class StudentNoteAdmin(admin.ModelAdmin):
     pass
 
 
+class AddressAdmin(admin.ModelAdmin):
+    pass
+
+
+class PhoneAdmin(admin.ModelAdmin):
+    pass
+
+
 admin.site.register(Section, SectionAdmin)
 admin.site.register(Grade, GradeAdmin)
 admin.site.register(Student, StudentAdmin)
@@ -48,3 +56,5 @@ admin.site.register(ExamType, ExamTypeAdmin)
 admin.site.register(ExamMark, ExamMarkAdmin)
 admin.site.register(StudentNoteType, StudentNoteTypeAdmin)
 admin.site.register(StudentNote, StudentNoteTypeAdmin)
+admin.site.register(Address, AddressAdmin)
+admin.site.register(Phone, PhoneAdmin)

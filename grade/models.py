@@ -1,5 +1,7 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 def validate_digit_length(phone):
@@ -21,6 +23,19 @@ class Grade(models.Model):
         return self.grade
 
 
+class Address(models.Model):
+    governorate = models.CharField(max_length=30, default="Irbid")
+    district = models.CharField(max_length=30, default="Al-Kourah")
+    neighborhood = models.CharField(max_length=30, default="KufrAwan")
+
+
+class Phone(models.Model):
+    phone = models.CharField(max_length=10, validators=[validate_digit_length], unique=True)
+
+    def __str__(self):
+        return self.phone
+
+
 class Student(models.Model):
     full_name = models.CharField(max_length=100, unique=True)
     national_id = models.CharField(verbose_name="national id", max_length=10,
@@ -28,6 +43,7 @@ class Student(models.Model):
     grade = models.ForeignKey(Grade, null=True, on_delete=models.SET_NULL)
     section = models.ForeignKey(Section, null=True, on_delete=models.SET_NULL)
     profile_pic = models.FileField(null=True, blank=True)
+    mobile = models.OneToOneField(Phone, on_delete=models.SET_NULL, null=True, blank=True)
 
     @property
     def absence_count(self):
@@ -36,6 +52,7 @@ class Student(models.Model):
     def __str__(self):
         return self.full_name
 
+    # creat user for each student
     def save(self, *args, **kwargs):
         if User.objects.filter(username=self.national_id):
             super().save(*args, **kwargs)
@@ -48,6 +65,11 @@ class Student(models.Model):
             user.last_name = name[-1]
             user.save()
             super().save(*args, **kwargs)
+
+    def delete(self, using=None, keep_parents=False):
+        user = User.objects.get(username=self.national_id)
+        user.delete()
+        super(Student, self).delete()
 
 
 class Absence(models.Model):
@@ -78,8 +100,24 @@ class ExamType(models.Model):
 
 
 class ExamMark(models.Model):
-    exam_type = models.ForeignKey(ExamType, null=True, on_delete=models.SET_NULL)
+    exam_type = models.ForeignKey(ExamType, on_delete=models.CASCADE)
+    top_mark = 100
     student = models.ForeignKey(Student, null=True, on_delete=models.CASCADE)
+    exam_mark = models.IntegerField(validators=[MaxValueValidator(top_mark), MinValueValidator(0)], default=0)
+
+    @property
+    def exam_result(self):
+        if self.exam_type.exam_pass_mark > self.exam_mark:
+            return "fail"
+        else:
+            return "pass"
+
+    def save(self, *args, **kwargs):
+        self.top_mark = self.exam_type.exam_top_mark
+        if self.exam_mark > self.top_mark:
+            self.exam_mark = self.top_mark
+
+        super(ExamMark, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.exam_type.exam_type + " " + self.student.full_name
