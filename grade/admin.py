@@ -27,9 +27,9 @@ class ExamMarkAdmin(admin.ModelAdmin):
 
 
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ("full_name", "grade", "section")
-    list_filter = ("full_name", "grade", "section")
-    list_select_related = True
+    list_display = ("id", "full_name", "grade", "section")
+    list_filter = ("grade", "section")
+    search_fields = ("full_name",)
 
 
 class StudentNoteTypeAdmin(admin.ModelAdmin):

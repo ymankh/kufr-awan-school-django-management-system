@@ -11,7 +11,7 @@
                 <th scope="col">Handle</th>
                 <th scope="col">
                     <label class="switch">
-                        <input id="select_all" class="checkbox" type="checkbox">
+                        <input id="select_all" class="checkbox"  type="checkbox" size="lg">
                         <span class="slider round"></span>
                     </label>
                 </th>
@@ -25,17 +25,21 @@
                     <td>{{ student.absence_count }}</td>
                     <td>{{ student.grade }}</td>
                     <td><label for="{{ student.id }}"></label><input type="checkbox" class="checkbox stu_checkbox"
-                                                                     id="{{ student.id }}"></td>
+                                                                     id="{{ student.id }}" size="lg"></td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
+    <div class="mt-2 mb-4">
+
         <form method="post">
             {% csrf_token %}
             <input class="hidden d-none" type="text" name="students_absence" id="stu_absence_ID_holder">
-            <input id="send_absence_button" class="btn btn-primary" type="submit">
+            <input id="send_absence_button" class="btn btn-primary mt-1 mb-4" type="submit">
         </form>
     </div>
+    </div>
+
     <script>
         let students_count = {{ students.count }};
         {# keep track on the number of  #}

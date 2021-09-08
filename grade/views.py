@@ -49,14 +49,15 @@ def profile(request):
     national_id = request.user.username
     student = Student.objects.get(national_id=national_id)
     notes = StudentNote.objects.filter(student=student)
-    return render(request, "profile.html", {"notes": notes, "time_now": timezone.now(),"student": student})
+    return render(request, "profile.html", {"notes": notes, "time_now": timezone.now(), "student": student})
 
 
 def students_table(request, grade_id, section_id):
     if request.method == "POST":
         # take the ideas of the students and set an absence on each one
-        for stu_id in request.POST["students_absence"].split(","):
-            Absence(student=Student(id=stu_id)).save()
+        if request.POST["students_absence"]:
+            for stu_id in request.POST["students_absence"].split(","):
+                Absence(student=Student(id=stu_id)).save()
     students = Student.objects.filter(grade=Grade(id=grade_id), section=Section(id=section_id))
     students_id = json.dumps([student.id for student in students])
     return render(request, "students_table.html",
@@ -69,3 +70,25 @@ def chose_grade(request):
         return redirect("students_table", data["grade"], data["section"])
     return render(request, "chose_grade.html", {"sections": Section.objects.all(),
                                                 "grades": Grade.objects.all()})
+
+
+# import csv
+def test(request):
+    # with open('static/students_list/6c.csv', 'r', encoding='utf-8') as file:
+    #     file = csv.reader(file)
+    #     i = 0
+    #     for line in file:
+    #         student = Student()
+    #         student.full_name = line[1]
+    #         if i >= 10:
+    #             student.national_id = "63000000" + str(i)
+    #         else:
+    #             student.national_id = "630000000" + str(i)
+    #         student.grade = Grade.objects.get(grade="سادس")
+    #         student.section = Section.objects.get(section="ج A")
+    #         try:
+    #             student.save()
+    #         except:
+    #             pass
+    #         i += 1
+    return redirect('index')
