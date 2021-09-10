@@ -46,6 +46,8 @@ def login(request):
 
 
 def profile(request):
+    if not Student.objects.filter(national_id=request.user.username).exists():
+        return redirect('index')
     national_id = request.user.username
     student = Student.objects.get(national_id=national_id)
     notes = StudentNote.objects.filter(student=student)
