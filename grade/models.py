@@ -1,4 +1,3 @@
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -10,7 +9,7 @@ def validate_digit_length(phone):
 
 
 class Section(models.Model):
-    section = models.CharField(max_length=10)
+    section = models.CharField(max_length=10, unique=True)
 
     def __str__(self):
         return self.section
@@ -36,12 +35,20 @@ class Phone(models.Model):
         return self.phone
 
 
+class Group(models.Model):
+    group = models.CharField(max_length=1, unique=True)
+
+    def __str__(self):
+        return self.group
+
+
 class Student(models.Model):
     full_name = models.CharField(max_length=100, unique=True)
     national_id = models.CharField(verbose_name="national id", max_length=10,
                                    validators=[validate_digit_length], unique=True, null=True)
     grade = models.ForeignKey(Grade, null=True, on_delete=models.SET_NULL)
     section = models.ForeignKey(Section, null=True, on_delete=models.SET_NULL)
+    group = models.ForeignKey(Group, null=True, on_delete=models.SET_NULL, blank=True)
     profile_pic = models.FileField(null=True, blank=True)
     mobile = models.OneToOneField(Phone, on_delete=models.SET_NULL, null=True, blank=True)
 

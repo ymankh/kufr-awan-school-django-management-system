@@ -3,7 +3,7 @@ from django.contrib.auth import logout
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import authenticate
 from django.contrib import messages
-from .models import Student, StudentNote, Grade, Section, Absence
+from .models import Student, StudentNote, Grade, Section, Absence, StudentNoteType, Group
 from django.utils import timezone
 import json
 
@@ -54,24 +54,37 @@ def profile(request):
     return render(request, "profile.html", {"notes": notes, "time_now": timezone.now(), "student": student})
 
 
-def students_table(request, grade_id, section_id):
+def students_table(request, grade_id, section_id, group_id):
+    if not request.user.is_staff:
+        return redirect("index")
     if request.method == "POST":
-        # take the ideas of the students and set an absence on each one
+        # take the id's of the students and set an absence on each one
         if request.POST["students_absence"]:
             for stu_id in request.POST["students_absence"].split(","):
                 Absence(student=Student(id=stu_id)).save()
-    students = Student.objects.filter(grade=Grade(id=grade_id), section=Section(id=section_id))
+    if group_id == 0:
+        students = Student.objects.filter(grade=Grade(id=grade_id), section=Section(id=section_id))
+    else:
+        students = Student.objects.filter(grade=Grade(id=grade_id), section=Section(id=section_id),
+                                          group=Group(id=group_id))
     students_id = json.dumps([student.id for student in students])
     return render(request, "students_table.html",
-                  {"grade_id": grade_id, "section_id": section_id, "students": students, "students_id": students_id})
+                  {"grade_id": grade_id, "section_id": section_id,
+                   "students": students, "students_id": students_id})
 
 
 def chose_grade(request):
+    if not request.user.is_staff:
+        messages.add_message(request, messages.WARNING, message="you dont have the permission to Enter this page!!")
+        return redirect("index")
     if request.GET:
         data = request.GET
-        return redirect("students_table", data["grade"], data["section"])
-    return render(request, "chose_grade.html", {"sections": Section.objects.all(),
-                                                "grades": Grade.objects.all()})
+        return redirect("students_table", data["grade"], data["section"], data['group'])
+    return render(request, "chose_grade.html", {
+        "sections": Section.objects.all(),
+        "grades": Grade.objects.all(),
+        "groups": Group.objects.all(),
+    })
 
 
 # import csv
@@ -94,3 +107,24 @@ def test(request):
     #             pass
     #         i += 1
     return redirect('index')
+
+
+def edit_student_information(request, student_id):
+    if not request.user.is_staff:
+        redirect("index")
+    student = Student.objects.get(id=student_id)
+    if request.method == "POST":
+        data = request.POST
+        # check for missing fields
+        if not data.get("note_type"):
+            messages.add_message(request, messages.WARNING, message="You did note Specify the note type!")
+        elif not data.get("note_text", None):
+            messages.add_message(request, messages.WARNING, message="You did not enter the Note Text! ")
+        else:
+            # save the note
+            StudentNote(student=student, note_type=StudentNoteType(id=data["note_type"]), note=data["note_text"]).save()
+    return render(request, "student_edit.html", {
+        "student_id": student_id,
+        "student": student,
+        "note_types": StudentNoteType.objects.all(),
+        "notes": StudentNote.objects.filter(student=student)})

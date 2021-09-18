@@ -1,0 +1,58 @@
+{% extends '__bass.html' %}
+{% block title %} student {{ student }} information {% endblock %}
+{% block contant %}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="my-4">
+                    <form method="POST">
+                    {% csrf_token %}
+                        <div class="mb-3">
+                            <h3> Add a note for the student {{ student.full_name }}. </h3>
+                        </div>
+                        <div class="mb-3">
+                            <select class="form-select" aria-label="Default select example" name="note_type">
+                                <option disabled selected>select the note type</option>
+                                {% for note_type in note_types %}
+                                    <option value="{{ note_type.id }}">{{ note_type.NoteType }}
+                                        - {{ note_type.tag }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="note_text" class="form-label">Note text</label>
+                            <input type="text" class="form-control" name="note_text" aria-describedby="note_text">
+                            <div id="note_text" class="form-text">Enter the note here.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+            <div class="list-group col col-lg-6 my-4">
+                <span class="list-group-item list-group-item-action flex-column align-items-start active">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">My Notes</h5>
+                    </div>
+                </span>
+                {% if notes %}
+                    {% for note in notes %}
+                        <a href="#"
+                           class="list-group-item list-group-item-action flex-column align-items-start list-group-item-{{ note.note_type.tag }}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ note.note }}</h5>
+                                <small>{{ note.note_date }}</small>
+                            </div>
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <a href="#"
+                       class="list-group-item list-group-item-action flex-column align-items-start bg-{{ note.note_type.tag }}">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h4 class="mb-1">There are no notes yet...</h4>
+                        </div>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

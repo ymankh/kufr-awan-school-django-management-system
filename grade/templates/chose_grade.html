@@ -20,7 +20,14 @@
                             {% for section in sections %}
                                 <option value="{{ section.id }}">{{ section.section }}</option>
                             {% endfor %}
-
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <select class="form-select" aria-label="Group" name="group">
+                        <option value="0">_____</option>
+                            {% for group in groups %}
+                                <option value="{{ group.id }}">{{ group.group }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary">Submit</button>

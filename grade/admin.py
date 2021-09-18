@@ -27,9 +27,10 @@ class ExamMarkAdmin(admin.ModelAdmin):
 
 
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ("id", "full_name", "grade", "section")
-    list_filter = ("grade", "section")
+    list_display = ("id", "full_name", "grade", "group", "section")
+    list_filter = ("grade", "section", "group")
     search_fields = ("full_name",)
+    list_editable = ("section", "group",)
 
 
 class StudentNoteTypeAdmin(admin.ModelAdmin):
@@ -48,6 +49,10 @@ class PhoneAdmin(admin.ModelAdmin):
     pass
 
 
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ("group",)
+
+
 admin.site.register(Section, SectionAdmin)
 admin.site.register(Grade, GradeAdmin)
 admin.site.register(Student, StudentAdmin)
@@ -58,3 +63,4 @@ admin.site.register(StudentNoteType, StudentNoteTypeAdmin)
 admin.site.register(StudentNote, StudentNoteTypeAdmin)
 admin.site.register(Address, AddressAdmin)
 admin.site.register(Phone, PhoneAdmin)
+admin.site.register(Group, GroupAdmin)
