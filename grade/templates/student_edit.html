@@ -6,7 +6,7 @@
             <div class="col-lg-6">
                 <div class="my-4">
                     <form method="POST">
-                    {% csrf_token %}
+                        {% csrf_token %}
                         <div class="mb-3">
                             <h3> Add a note for the student {{ student.full_name }}. </h3>
                         </div>
@@ -36,21 +36,46 @@
                 </span>
                 {% if notes %}
                     {% for note in notes %}
-                        <a href="#"
-                           class="list-group-item list-group-item-action flex-column align-items-start list-group-item-{{ note.note_type.tag }}">
+                        <span
+                                class="list-group-item list-group-item-action flex-column align-items-start list-group-item-{{ note.note_type.tag }}">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">{{ note.note }}</h5>
                                 <small>{{ note.note_date }}</small>
                             </div>
-                        </a>
+                        </span>
                     {% endfor %}
                 {% else %}
-                    <a href="#"
+                    <span
+                            class="list-group-item list-group-item-action flex-column align-items-start bg-{{ note.note_type.tag }}">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h4 class="mb-1">There are no notes yet...</h4>
+                        </div>
+                    </span>
+                {% endif %}
+            </div>
+            <div class="list-group col col-lg-6 my-4">
+                <span class="list-group-item list-group-item-action flex-column align-items-start active">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">Student Absence</h5>
+                    </div>
+                </span>
+                {% if absences %}
+                    {% for absence in absences %}
+                        <span
+                           class="list-group-item list-group-item-action flex-column align-items-start list-group-item-{{ note.note_type.tag }}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ absence.absence_date.isoformat }}</h5>
+                                {#                                <small>{{ note.note_date }}</small>#}
+                            </div>
+                        </span>
+                    {% endfor %}
+                {% else %}
+                    <span
                        class="list-group-item list-group-item-action flex-column align-items-start bg-{{ note.note_type.tag }}">
                         <div class="d-flex w-100 justify-content-between">
                             <h4 class="mb-1">There are no notes yet...</h4>
                         </div>
-                    </a>
+                    </span>
                 {% endif %}
             </div>
         </div>

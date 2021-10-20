@@ -127,4 +127,5 @@ def edit_student_information(request, student_id):
         "student_id": student_id,
         "student": student,
         "note_types": StudentNoteType.objects.all(),
-        "notes": StudentNote.objects.filter(student=student)})
+        "notes": StudentNote.objects.filter(student=student),
+        "absences": Absence.objects.filter(student=student)})
