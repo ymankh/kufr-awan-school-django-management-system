@@ -38,7 +38,10 @@ class StudentNoteTypeAdmin(admin.ModelAdmin):
 
 
 class StudentNoteAdmin(admin.ModelAdmin):
-    pass
+    list_display = ("student", "grade", "section", "note_type", "note",)
+    search_fields = ("student__name", "note")
+    list_editable = ("note", "note_type")
+    list_filter = ("student__grade", "student__section")
 
 
 class AddressAdmin(admin.ModelAdmin):
@@ -60,7 +63,7 @@ admin.site.register(Absence, AbsenceAdmin)
 admin.site.register(ExamType, ExamTypeAdmin)
 admin.site.register(ExamMark, ExamMarkAdmin)
 admin.site.register(StudentNoteType, StudentNoteTypeAdmin)
-admin.site.register(StudentNote, StudentNoteTypeAdmin)
+admin.site.register(StudentNote, StudentNoteAdmin)
 admin.site.register(Address, AddressAdmin)
 admin.site.register(Phone, PhoneAdmin)
 admin.site.register(Group, GroupAdmin)

@@ -153,5 +153,13 @@ class StudentNote(models.Model):
     note_date = models.DateField(auto_now=True)
     visible_to_student = models.BooleanField(default=False)
 
+    @property
+    def grade(self):
+        return self.student.grade.grade
+
+    @property
+    def section(self):
+        return self.student.section.section
+
     def __str__(self):
         return self.student.full_name + " " + self.note[0:100]
