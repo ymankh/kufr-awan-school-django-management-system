@@ -39,7 +39,7 @@ class StudentNoteTypeAdmin(admin.ModelAdmin):
 
 class StudentNoteAdmin(admin.ModelAdmin):
     list_display = ("student", "grade", "section", "note_type", "note",)
-    search_fields = ("student__name", "note")
+    search_fields = ("student__full_name", "note")
     list_editable = ("note", "note_type")
     list_filter = ("student__grade", "student__section")
 

@@ -61,21 +61,21 @@
                 </span>
                 {% if absences %}
                     {% for absence in absences %}
-                        <span
+                        <div
                            class="list-group-item list-group-item-action flex-column align-items-start list-group-item-{{ note.note_type.tag }}">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">{{ absence.absence_date.isoformat }}</h5>
                                 {#                                <small>{{ note.note_date }}</small>#}
                             </div>
-                        </span>
+                        </div>
                     {% endfor %}
                 {% else %}
-                    <span
+                    <div
                        class="list-group-item list-group-item-action flex-column align-items-start bg-{{ note.note_type.tag }}">
                         <div class="d-flex w-100 justify-content-between">
                             <h4 class="mb-1">There are no notes yet...</h4>
                         </div>
-                    </span>
+                    </div>
                 {% endif %}
             </div>
         </div>

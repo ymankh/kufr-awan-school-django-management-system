@@ -1,3 +1,11 @@
 /Lib/
 /Scripts/
 /venv/
+grade/__pycache__/admin.cpython-39.pyc
+grade/__pycache__/models.cpython-39.pyc
+grade/__pycache__/admin.cpython-39.pyc
+grade/__pycache__/models.cpython-39.pyc
+grade/__pycache__/views.cpython-39.pyc
+my_school/__pycache__/settings.cpython-39.pyc
+my_school/__pycache__/urls.cpython-39.pyc
+*.pyc
