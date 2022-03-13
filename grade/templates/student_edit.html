@@ -35,15 +35,35 @@
                     </div>
                 </span>
                 {% if notes %}
+                    <script>
+                        function updateNoteDeleteList() {
+                            let values = [];
+                            const boxes = document.getElementsByClassName('note-checkbox');
+                            for (let box of boxes)
+                                if (box.checked) values.push(box.id);
+                            let del_btn = document.getElementById('delete');
+                            del_btn.value = JSON.stringify(values);
+                        }
+                    </script>
                     {% for note in notes %}
                         <span
                                 class="list-group-item list-group-item-action flex-column align-items-start list-group-item-{{ note.note_type.tag }}">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">{{ note.note }}</h5>
-                                <small>{{ note.note_date }}</small>
+                                <small>{{ note.note_date }} <input class="form-check-input note-checkbox"
+                                                                   type="checkbox" onclick="updateNoteDeleteList()"
+                                                                   value="{{ note.id }}" id="{{ note.id }}">
+                                </small>
                             </div>
                         </span>
                     {% endfor %}
+                    <span>
+                        <form method="post" id="del-abs">
+                        {% csrf_token %}
+                        <button type="submit" name="del_note_list" id="delete" class="btn btn-danger m-1">
+                            Delete Selected</button>
+                        </form>
+                    </span>
                 {% else %}
                     <span
                             class="list-group-item list-group-item-action flex-column align-items-start bg-{{ note.note_type.tag }}">
@@ -62,16 +82,17 @@
                 {% if absences %}
                     {% for absence in absences %}
                         <div
-                           class="list-group-item list-group-item-action flex-column align-items-start list-group-item-{{ note.note_type.tag }}">
+                                class="list-group-item list-group-item-action flex-column align-items-start list-group-item-{{ note.note_type.tag }}">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">{{ absence.absence_date.isoformat }}</h5>
                                 {#                                <small>{{ note.note_date }}</small>#}
                             </div>
                         </div>
                     {% endfor %}
+
                 {% else %}
                     <div
-                       class="list-group-item list-group-item-action flex-column align-items-start bg-{{ note.note_type.tag }}">
+                            class="list-group-item list-group-item-action flex-column align-items-start bg-{{ note.note_type.tag }}">
                         <div class="d-flex w-100 justify-content-between">
                             <h4 class="mb-1">There are no notes yet...</h4>
                         </div>

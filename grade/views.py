@@ -6,6 +6,7 @@ from django.contrib import messages
 from .models import Student, StudentNote, Grade, Section, Absence, StudentNoteType, Group
 from django.utils import timezone
 import json
+import json
 
 
 def validate_digit_length(national_id):
@@ -54,6 +55,7 @@ def profile(request):
     return render(request, "profile.html", {"notes": notes, "time_now": timezone.now(), "student": student})
 
 
+# student tables
 def students_table(request, grade_id, section_id, group_id):
     if not request.user.is_staff:
         return redirect("index")
@@ -63,10 +65,11 @@ def students_table(request, grade_id, section_id, group_id):
             for stu_id in request.POST["students_absence"].split(","):
                 Absence(student=Student(id=stu_id)).save()
     if group_id == 0:
-        students = Student.objects.filter(grade=Grade(id=grade_id), section=Section(id=section_id))
+        students = Student.objects.filter(grade=Grade(id=grade_id), section=Section(id=section_id)).order_by(
+            "full_name")
     else:
         students = Student.objects.filter(grade=Grade(id=grade_id), section=Section(id=section_id),
-                                          group=Group(id=group_id))
+                                          group=Group(id=group_id)).order_by('full_name')
     students_id = json.dumps([student.id for student in students])
     return render(request, "students_table.html",
                   {"grade_id": grade_id, "section_id": section_id,
@@ -89,18 +92,19 @@ def chose_grade(request):
 
 # import csv
 def test(request):
-    # with open('static/students_list/6c.csv', 'r', encoding='utf-8') as file:
+    # with open('csvs/sixthC.csv', 'r', encoding='utf-8') as file:
     #     file = csv.reader(file)
     #     i = 0
     #     for line in file:
     #         student = Student()
-    #         student.full_name = line[1]
+    #         student.full_name = line[0]
+    #         start_at = "63000000"
     #         if i >= 10:
-    #             student.national_id = "63000000" + str(i)
+    #             student.national_id = start_at + str(i)
     #         else:
-    #             student.national_id = "630000000" + str(i)
+    #             student.national_id = start_at + str(i) + "0"
     #         student.grade = Grade.objects.get(grade="سادس")
-    #         student.section = Section.objects.get(section="ج A")
+    #         student.section = Section.objects.get(section="ج")
     #         try:
     #             student.save()
     #         except:
@@ -115,14 +119,22 @@ def edit_student_information(request, student_id):
     student = Student.objects.get(id=student_id)
     if request.method == "POST":
         data = request.POST
-        # check for missing fields
-        if not data.get("note_type"):
-            messages.add_message(request, messages.WARNING, message="You did note Specify the note type!")
-        elif not data.get("note_text", None):
-            messages.add_message(request, messages.WARNING, message="You did not enter the Note Text! ")
-        else:
-            # save the note
-            StudentNote(student=student, note_type=StudentNoteType(id=data["note_type"]), note=data["note_text"]).save()
+        print(data)
+        if "del_note_list" in data and data["del_note_list"]:
+            for note_id in json.loads(data["del_note_list"]):
+                StudentNote.objects.get(id=note_id).delete()
+
+        if 'note_type' in data:
+            data = request.POST
+            # check for missing fields
+            if not data.get("note_type"):
+                messages.add_message(request, messages.WARNING, message="You did note Specify the note type!")
+            elif not data.get("note_text", None):
+                messages.add_message(request, messages.WARNING, message="You did not enter the Note Text! ")
+            else:
+                # save the note
+                StudentNote(student=student, note_type=StudentNoteType(id=data["note_type"]),
+                            note=data["note_text"]).save()
     return render(request, "student_edit.html", {
         "student_id": student_id,
         "student": student,
