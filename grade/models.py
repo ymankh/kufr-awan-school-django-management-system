@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db.models import Model
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 
 def validate_digit_length(phone):
@@ -76,7 +79,14 @@ class Student(models.Model):
     def delete(self, using=None, keep_parents=False):
         user = User.objects.get(username=self.national_id)
         user.delete()
+        print("del")
         super(Student, self).delete()
+
+
+@receiver(post_delete, sender=Student)
+def signal_function_name(sender, instance, using, **kwargs):
+    user = User.objects.get(username=instance.national_id)
+    user.delete()
 
 
 class Absence(models.Model):

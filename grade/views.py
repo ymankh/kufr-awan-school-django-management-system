@@ -6,7 +6,6 @@ from django.contrib import messages
 from .models import Student, StudentNote, Grade, Section, Absence, StudentNoteType, Group
 from django.utils import timezone
 import json
-import json
 
 
 def validate_digit_length(national_id):
@@ -90,26 +89,28 @@ def chose_grade(request):
     })
 
 
-# import csv
+import csv
+
+
 def test(request):
-    # with open('csvs/sixthC.csv', 'r', encoding='utf-8') as file:
-    #     file = csv.reader(file)
-    #     i = 0
-    #     for line in file:
-    #         student = Student()
-    #         student.full_name = line[0]
-    #         start_at = "63000000"
-    #         if i >= 10:
-    #             student.national_id = start_at + str(i)
-    #         else:
-    #             student.national_id = start_at + str(i) + "0"
-    #         student.grade = Grade.objects.get(grade="سادس")
-    #         student.section = Section.objects.get(section="ج")
-    #         try:
-    #             student.save()
-    #         except:
-    #             pass
-    #         i += 1
+    with open('csvs/fifth.csv', 'r', encoding='utf-8') as file:
+        file = csv.reader(file)
+        i = 0
+        for line in file:
+            student = Student()
+            student.full_name = line[0]
+            start_at = "63000000"
+            if i >= 10:
+                student.national_id = start_at + str(i)
+            else:
+                student.national_id = start_at + "0" + str(i)
+            student.grade = Grade.objects.get(grade="السادس")
+            student.section = Section.objects.get(section="ج")
+            try:
+                student.save()
+            except:
+                pass
+            i += 1
     return redirect('index')
 
 
