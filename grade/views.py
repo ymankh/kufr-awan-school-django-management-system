@@ -89,29 +89,29 @@ def chose_grade(request):
     })
 
 
-import csv
-
-
-def test(request):
-    with open('csvs/fifth.csv', 'r', encoding='utf-8') as file:
-        file = csv.reader(file)
-        i = 0
-        for line in file:
-            student = Student()
-            student.full_name = line[0]
-            start_at = "63000000"
-            if i >= 10:
-                student.national_id = start_at + str(i)
-            else:
-                student.national_id = start_at + "0" + str(i)
-            student.grade = Grade.objects.get(grade="السادس")
-            student.section = Section.objects.get(section="ج")
-            try:
-                student.save()
-            except:
-                pass
-            i += 1
-    return redirect('index')
+# import csv
+#
+#
+# def test(request):
+#     with open('csvs/fifth.csv', 'r', encoding='utf-8') as file:
+#         file = csv.reader(file)
+#         i = 0
+#         for line in file:
+#             student = Student()
+#             student.full_name = line[0]
+#             start_at = "63000000"
+#             if i >= 10:
+#                 student.national_id = start_at + str(i)
+#             else:
+#                 student.national_id = start_at + "0" + str(i)
+#             student.grade = Grade.objects.get(grade="السادس")
+#             student.section = Section.objects.get(section="ج")
+#             try:
+#                 student.save()
+#             except:
+#                 pass
+#             i += 1
+#     return redirect('index')
 
 
 def edit_student_information(request, student_id):
@@ -125,7 +125,7 @@ def edit_student_information(request, student_id):
             for note_id in json.loads(data["del_note_list"]):
                 StudentNote.objects.get(id=note_id).delete()
 
-        if 'note_type' in data:
+        elif 'note_type' in data:
             data = request.POST
             # check for missing fields
             if not data.get("note_type"):
@@ -136,6 +136,11 @@ def edit_student_information(request, student_id):
                 # save the note
                 StudentNote(student=student, note_type=StudentNoteType(id=data["note_type"]),
                             note=data["note_text"]).save()
+        elif 'absences' in data:
+            for absence in data['absences']:
+                Absence.objects.get(id=absence).delete()
+
+        return redirect("student_information_edit", student_id=student_id)
     return render(request, "student_edit.html", {
         "student_id": student_id,
         "student": student,

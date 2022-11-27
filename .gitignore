@@ -3,4 +3,9 @@
 /venv/
 *.pyc
 /csvs/
-.idea/
+/.idea/
+*.xml
+*.xml
+.idea/dataSources.xml
+.idea/misc.xml
+.idea/my_school.iml

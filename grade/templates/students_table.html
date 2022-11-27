@@ -8,7 +8,7 @@
                 <th scope="col">#</th>
                 <th scope="col">Name</th>
                 <th scope="col">Absence Count</th>
-                <th scope="col">Handle</th>
+{#                <th scope="col">Handle</th>#}
                 <th scope="col">
                     <label class="switch">
                         <input id="select_all" class="checkbox" type="checkbox" size="lg">
@@ -25,7 +25,7 @@
                            class="link-dark text">{{ student.full_name }}</a>
                     </td>
                     <td>{{ student.absence_count }}</td>
-                    <td>{{ student.grade }}</td>
+{#                    <td>{{ student.grade }}</td>#}
                     <td><label for="{{ student.id }}"></label><input type="checkbox" class="checkbox stu_checkbox"
                                                                      id="{{ student.id }}" size="lg"></td>
                 </tr>

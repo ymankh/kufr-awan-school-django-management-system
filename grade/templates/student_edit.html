@@ -5,7 +5,7 @@
         <div class="row">
             <div class="col-lg-6">
                 <div class="my-4">
-                    <form method="POST">
+                    <form method="POST" name="add_note">
                         {% csrf_token %}
                         <div class="mb-3">
                             <h3> Add a note for the student {{ student.full_name }}. </h3>
@@ -58,7 +58,7 @@
                         </span>
                     {% endfor %}
                     <span>
-                        <form method="post" id="del-abs">
+                        <form method="POST" id="delete_notes" name="delete_notes">
                         {% csrf_token %}
                         <button type="submit" name="del_note_list" id="delete" class="btn btn-danger m-1">
                             Delete Selected</button>
@@ -66,7 +66,7 @@
                     </span>
                 {% else %}
                     <span
-                            class="list-group-item list-group-item-action flex-column align-items-start bg-{{ note.note_type.tag }}">
+                            class="list-group-item list-group-item-action flex-column align-items-start">
                         <div class="d-flex w-100 justify-content-between">
                             <h4 class="mb-1">There are no notes yet...</h4>
                         </div>
@@ -80,21 +80,27 @@
                     </div>
                 </span>
                 {% if absences %}
-                    {% for absence in absences %}
-                        <div
-                                class="list-group-item list-group-item-action flex-column align-items-start list-group-item-{{ note.note_type.tag }}">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">{{ absence.absence_date.isoformat }}</h5>
-                                {#                                <small>{{ note.note_date }}</small>#}
+                    <form method="POST" name="absence">
+                    {% csrf_token %}
+                        {% for absence in absences %}
+                            <div
+                                    class="list-group-item list-group-item-action flex-column align-items-start list-group-item-{{ note.note_type.tag }}">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">{{ absence.absence_date.isoformat }}  </h5>
+                                    <small>{{ note.note_date }} <input class="form-check-input note-checkbox"
+                                                                       type="checkbox" name="absences"
+                                                                       value="{{ absences.id }}" id="{{ absences.id }}">
+                                    </small>
+                                </div>
                             </div>
-                        </div>
-                    {% endfor %}
-
+                        {% endfor %}
+                    <button type="submit" name="del_absence_list" id="delete2" class="btn btn-danger m-1">
+                            Delete Selected</button>
+                    </form>
                 {% else %}
-                    <div
-                            class="list-group-item list-group-item-action flex-column align-items-start bg-{{ note.note_type.tag }}">
+                    <div class="list-group-item list-group-item-action flex-column align-items-start">
                         <div class="d-flex w-100 justify-content-between">
-                            <h4 class="mb-1">There are no notes yet...</h4>
+                            <h4 class="mb-1">There are no absences yet...</h4>
                         </div>
                     </div>
                 {% endif %}

@@ -1,0 +1,45 @@
+{% extends "__bass.html" %}
+{% block title %} {{ user.username }} profile {% endblock %}
+{% block contant %}
+    <div class="container">
+        <form method="post">
+        {% csrf_token %}
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Absence Count</th>
+                    <th scope="col">Handle</th>
+                    <th scope="col">
+                        <label class="switch">
+                            <input id="select_all" class="checkbox" type="checkbox" size="lg">
+                            <span class="slider round"></span>
+                        </label>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for student in students %}
+                    <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td><a href="{% url 'student_information_edit' student_id=student.id %}"
+                               class="link-dark text">{{ student.full_name }}</a>
+                        </td>
+                        <td>{{ student.absence_count }}</td>
+                        <td>{{ student.grade }}</td>
+                        <td><label for="{{ student.id }}"></label><input type="checkbox" class="checkbox stu_checkbox"
+                                                                         id="{{ student.id }}" name="absence_list" size="lg"
+                                                                         value="{{ student.id }}"></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <div class="mt-2 mb-4">
+                <input id="send_absence_button" class="btn btn-primary mt-1 mb-4" type="submit">
+            </div>
+        </form>
+    </div>
+
+    </div>
+{% endblock %}
