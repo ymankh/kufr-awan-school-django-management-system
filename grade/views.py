@@ -123,9 +123,9 @@ def edit_student_information(request, student_id):
     
     if request.method == "POST":
         data = request.POST
-        # delete list of selected notes
-        if "del_note_list" in data and data["del_note_list"]:
-            for note_id in json.loads(data["del_note_list"]):
+        # delete list of selected notes 
+        if "deleted_notes_list" in data and data["deleted_notes_list"]:
+            for note_id in data.getlist('deleted_notes_list'):
                 StudentNote.objects.get(id=note_id).delete()
         elif "absences" in data and data["absences"]:
             for note_id in data.getlist('absences'):
