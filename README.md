@@ -67,8 +67,8 @@ This project is licensed under the MIT License - see the [LICENSE](/path/to/LICE
 For any questions or assistance, feel free to reach out to me, Yaman, the creator and maintainer of this project.
 
 **Contact Information:**
-- Email: yaman@example.com
-- LinkedIn: [linkedin.com/in/yaman-example](https://www.linkedin.com/in/yaman-example)
+- Email: ymankh1997@gmail.com
+- LinkedIn: [https://www.linkedin.com/in/yaman-alkhashashneh](https://www.linkedin.com/in/yaman-alkhashashneh-353a7a180/)
 
 Thank you for using the Student Attendance and Notes Monitoring System!
 
