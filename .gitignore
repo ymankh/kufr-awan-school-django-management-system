@@ -9,3 +9,7 @@
 .idea/dataSources.xml
 .idea/misc.xml
 .idea/my_school.iml
+db.sqlite3
+Pipfile
+Pipfile.lock
+db.sqlite3

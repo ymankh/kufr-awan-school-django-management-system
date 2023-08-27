@@ -62,7 +62,7 @@ class Student(models.Model):
     def __str__(self):
         return self.full_name
 
-    # creat user for each student
+    # create user for each student
     def save(self, *args, **kwargs):
         if User.objects.filter(username=self.national_id):
             super().save(*args, **kwargs)

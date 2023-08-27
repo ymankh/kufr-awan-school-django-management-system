@@ -3,7 +3,7 @@ from django.contrib.auth import logout
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import authenticate
 from django.contrib import messages
-from .models import Student, StudentNote, Grade, Section, Absence, StudentNoteType, Group
+from .models import Student, StudentNote, Grade, Section, Absence, StudentNoteType, Group, Absence
 from django.utils import timezone
 import json
 
@@ -115,16 +115,23 @@ def chose_grade(request):
 
 
 def edit_student_information(request, student_id):
+    #Make sure only staff can reach this page.
     if not request.user.is_staff:
         redirect("index")
+    
     student = Student.objects.get(id=student_id)
+    
     if request.method == "POST":
         data = request.POST
-        print(data)
+        # delete list of selected notes
         if "del_note_list" in data and data["del_note_list"]:
             for note_id in json.loads(data["del_note_list"]):
                 StudentNote.objects.get(id=note_id).delete()
-
+        elif "absences" in data and data["absences"]:
+            for note_id in data.getlist('absences'):
+                Absence.objects.get(id=note_id).delete()
+        
+        # add a written note to the student.
         elif 'note_type' in data:
             data = request.POST
             # check for missing fields
@@ -136,9 +143,6 @@ def edit_student_information(request, student_id):
                 # save the note
                 StudentNote(student=student, note_type=StudentNoteType(id=data["note_type"]),
                             note=data["note_text"]).save()
-        elif 'absences' in data:
-            for absence in data['absences']:
-                Absence.objects.get(id=absence).delete()
 
         return redirect("student_information_edit", student_id=student_id)
     return render(request, "student_edit.html", {
