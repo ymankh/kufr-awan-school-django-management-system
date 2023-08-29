@@ -8,7 +8,7 @@
                 <th scope="col">#</th>
                 <th scope="col">Name</th>
                 <th scope="col">Absence Count</th>
-{#                <th scope="col">Handle</th>#}
+                {#<th scope="col">Handle</th>#}
                 <th scope="col">
                     <label class="switch">
                         <input id="select_all" class="checkbox" type="checkbox" size="lg">
@@ -18,24 +18,26 @@
             </tr>
             </thead>
             <tbody>
-            {% for student in students %}
+                <form method="post">
+                    {% csrf_token %}
+             {% for student in students %}
                 <tr>
                     <th scope="row">{{ forloop.counter }}</th>
                     <td><a href="{% url 'student_information_edit' student_id=student.id %}"
                            class="link-dark text">{{ student.full_name }}</a>
                     </td>
-                    <td>{{ student.absence_count }}</td>
+                    <td>{{ student.absence__count}}</td>
 {#                    <td>{{ student.grade }}</td>#}
                     <td><label for="{{ student.id }}"></label><input type="checkbox" class="checkbox stu_checkbox"
-                                                                     id="{{ student.id }}" size="lg"></td>
+                                                                     id="{{ student.id }}" name="absence" value="{{ student.id }}" size="lg"></td>
                 </tr>
-            {% endfor %}
+            {% endfor %} 
+
             </tbody>
         </table>
         <div class="mt-2 mb-4">
 
-            <form method="post">
-                {% csrf_token %}
+            
                 <input class="hidden d-none" type="text" name="students_absence" id="stu_absence_ID_holder">
                 <input id="send_absence_button" class="btn btn-primary mt-1 mb-4" type="submit">
             </form>
@@ -61,17 +63,6 @@
         }
 
         {# set values of students ids in the form #}
-
-        function send_absence_to_form() {
-            let id_list = []
-            students_checkbox.forEach((checkbox) => {
-                if (checkbox.checked) {
-                    id_list.push(checkbox.id)
-                }
-                stu_absence_ID_holder.value = id_list.toString()
-            })
-        }
-
         function uncheck_all() {
             checkbox_list.forEach(function (checkbox) {
                 if (checkbox.type === "checkbox") {
