@@ -74,4 +74,4 @@ Thank you for using the Student Attendance and Notes Monitoring System!
 
 ---
 
-**Note:** This README provides a general overview. For detailed installation and usage instructions, please refer to the documentation provided in the repository.
+**Note:** This README provides a general overview. For detailed installation and usage instructions.

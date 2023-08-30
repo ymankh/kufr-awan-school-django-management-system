@@ -1,3 +1,4 @@
+from random import shuffle
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout
 from django.contrib.auth import login as auth_login
@@ -5,15 +6,16 @@ from django.contrib.auth import authenticate
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Count
+from django.contrib.admin.views.decorators import staff_member_required
 from .models import (
     Student,
     StudentNote,
     Grade,
     Section,
-    Absence,
     StudentNoteType,
     Group,
     Absence,
+    ParticipationOption,
 )
 
 
@@ -46,7 +48,6 @@ def login(request):
             return redirect("login")
         password = request.POST["password"]
         user = authenticate(username=username, password=password)
-        print(user)
         if user is not None:
             auth_login(request, user)
             return redirect("index")
@@ -73,7 +74,7 @@ def profile(request):
 
 
 # student tables
-def students_table(request, grade_id, section_id, group_id):
+def absence_table(request, grade_id, section_id, group_id):
     # make sure only staff can reach this page
     if not request.user.is_staff:
         return redirect("index")
@@ -90,13 +91,14 @@ def students_table(request, grade_id, section_id, group_id):
             )
     if group_id == 0:
         students = (
-            Student.objects.annotate(Count("absence")).filter(
-                grade=Grade(id=grade_id), section=Section(id=section_id)
-            ).order_by("full_name")
+            Student.objects.annotate(Count("absence"))
+            .filter(grade=Grade(id=grade_id), section=Section(id=section_id))
+            .order_by("full_name")
         )
     else:
         students = (
-            Student.objects.annotate(Count("absence")).filter(
+            Student.objects.annotate(Count("absence"))
+            .filter(
                 grade=Grade(id=grade_id),
                 section=Section(id=section_id),
                 group=Group(id=group_id),
@@ -120,7 +122,7 @@ def chose_grade(request):
         return redirect("index")
     if request.GET:
         data = request.GET
-        return redirect("students_table", data["grade"], data["section"], data["group"])
+        return redirect(data["page"], data["grade"], data["section"], data["group"])
     return render(
         request,
         "chose_grade.html",
@@ -128,6 +130,7 @@ def chose_grade(request):
             "sections": Section.objects.all(),
             "grades": Grade.objects.all(),
             "groups": Group.objects.all(),
+            "page_options": ["students_table", "participation_table"]
         },
     )
 
@@ -136,18 +139,18 @@ def chose_grade(request):
 #
 #
 # def test(request):
-#     with open('csvs/fifth.csv', 'r', encoding='utf-8') as file:
+#     with open('csv/7c.csv', 'r', encoding='utf-8') as file:
 #         file = csv.reader(file)
 #         i = 0
 #         for line in file:
 #             student = Student()
 #             student.full_name = line[0]
-#             start_at = "63000000"
+#             start_at = "73000000"
 #             if i >= 10:
 #                 student.national_id = start_at + str(i)
 #             else:
 #                 student.national_id = start_at + "0" + str(i)
-#             student.grade = Grade.objects.get(grade="sixth")
+#             student.grade = Grade.objects.get(grade="السابع")
 #             student.section = Section.objects.get(section="ج")
 #             try:
 #                 student.save()
@@ -206,5 +209,50 @@ def edit_student_information(request, student_id):
             "note_types": StudentNoteType.objects.all(),
             "notes": StudentNote.objects.filter(student=student),
             "absences": Absence.objects.filter(student=student),
+        },
+    )
+
+
+def participation_table(request, grade_id, section_id, group_id):
+    if not request.user.is_staff:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            message="you dont have the permission to Enter this page!!",
+        )
+        return redirect("index")
+    if request.method == "POST":
+        data = request.POST
+        participation = data.getlist("participations")
+        notes = []
+        print(participation)
+        for p in participation:
+            student, note, note_type = p.split(",")
+            notes += [
+                StudentNote(student_id=student, note=note, note_type_id=note_type)
+            ]
+        StudentNote.objects.bulk_create(notes)
+        return redirect(
+            participation_table,
+            grade_id=grade_id,
+            section_id=section_id,
+            group_id=group_id,
+        )
+    grade = Grade.objects.get(id=grade_id)
+    section = Section.objects.get(id=section_id)
+    if group_id != 0:
+        group = Group.objects.get(id=group_id)
+        students = Student.objects.filter(group=group, grade=grade, section=section)
+    else:
+        students = Student.objects.filter(grade=grade, section=section)
+    participation_options = ParticipationOption.objects.all()
+    students = list(students)
+    shuffle(students)
+    return render(
+        request,
+        "participation_table.html",
+        context={
+            "students": students,
+            "participation_options": participation_options,
         },
     )

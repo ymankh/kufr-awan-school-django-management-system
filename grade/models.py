@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import Model
-from django.db.models.signals import post_delete
+from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
 
@@ -76,17 +76,13 @@ class Student(models.Model):
             user.save()
             super().save(*args, **kwargs)
 
-    def delete(self, using=None, keep_parents=False):
-        user = User.objects.get(username=self.national_id)
-        user.delete()
-        print("del")
-        super(Student, self).delete()
-
-
-@receiver(post_delete, sender=Student)
+@receiver(pre_delete, sender=Student)
 def signal_function_name(sender, instance, using, **kwargs):
-    user = User.objects.get(username=instance.national_id)
-    user.delete()
+    try:
+        user = User.objects.get(username=instance.national_id).delete()
+    except:
+        pass
+    
 
 
 class Absence(models.Model):
@@ -149,11 +145,11 @@ class StudentNoteType(models.Model):
         ('warning', 'warning'),
         ('info', 'info')
     ]
-    NoteType = models.CharField(max_length=50)
+    note_type = models.CharField(max_length=50)
     tag = models.CharField(max_length=10, choices=TAGS_CHOICES, default="", null=True)
 
     def __str__(self):
-        return self.NoteType
+        return self.note_type
 
 
 class StudentNote(models.Model):
@@ -173,3 +169,13 @@ class StudentNote(models.Model):
 
     def __str__(self):
         return self.student.full_name + " " + self.note[0:100]
+    
+class ParticipationOption(models.Model):
+    note = models.CharField(max_length=255)
+    note_type = models.ForeignKey(StudentNoteType,  on_delete=models.CASCADE)
+
+    def create_note(self, student:int):
+        return StudentNote(student=student, note=self.note, not_type=self.note_type)
+    def __str__(self):
+        return self.note 
+     

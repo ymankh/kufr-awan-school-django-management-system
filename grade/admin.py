@@ -44,6 +44,10 @@ class StudentNoteAdmin(admin.ModelAdmin):
     list_filter = ("student__grade", "student__section")
 
 
+class ParticipationOptionAdmin(admin.ModelAdmin):
+    pass
+
+
 class AddressAdmin(admin.ModelAdmin):
     pass
 
@@ -67,3 +71,4 @@ admin.site.register(StudentNote, StudentNoteAdmin)
 admin.site.register(Address, AddressAdmin)
 admin.site.register(Phone, PhoneAdmin)
 admin.site.register(Group, GroupAdmin)
+admin.site.register(ParticipationOption,ParticipationOptionAdmin)

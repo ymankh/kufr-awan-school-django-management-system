@@ -1,5 +1,5 @@
 {% extends "__bass.html" %}
-{% block title %} {{ user.username }} profile {% endblock %}
+{% block title %} {{grade}} {{section}} Partesepation {{grade}} {% endblock %}
 {% block contant %}
     <div class="container">
         <form method="post">
@@ -9,13 +9,7 @@
                 <tr>
                     <th scope="col">#</th>
                     <th scope="col">Name</th>
-                    <th scope="col">Absence Count</th>
-                    <th scope="col">
-                        <label class="switch">
-                            <input id="select_all" class="checkbox" type="checkbox" size="lg">
-                            <span class="slider round"></span>
-                        </label>
-                    </th>
+                    <th scope="col">participation</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -25,10 +19,12 @@
                         <td><a href="{% url 'student_information_edit' student_id=student.id %}"
                                class="link-dark text">{{ student.full_name }}</a>
                         </td>
-                        <td>{{ student.absence_count }}</td>
-                        <td><label for="{{ student.id }}"></label><input type="checkbox" class="checkbox stu_checkbox"
-                                                                         id="{{ student.id }}" name="absence_list" size="lg"
-                                                                         value="{{ student.id }}"></td>
+                        <td><select class="form-select" aria-label="participation" name="participations">
+                            <option disabled selected>---</option>
+                            {% for p_option in participation_options %}
+                                <option value="{{ student.id }},{{p_option.note}},{{p_option.note_type.id}}"> {{ p_option }} </option>
+                            {% endfor %}
+                        </select></td>
                     </tr>
                 {% endfor %}
                 </tbody>

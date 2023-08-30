@@ -12,7 +12,6 @@
                             {% for grade in grades %}
                                 <option value="{{ grade.id }}">{{ grade.grade }}</option>
                             {% endfor %}
-
                         </select>
                     </div>
                     <div class="mb-3">
@@ -27,6 +26,13 @@
                         <option value="0">_____</option>
                             {% for group in groups %}
                                 <option value="{{ group.id }}">{{ group.group }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <select class="form-select" aria-label="Group" name="page">
+                            {% for page_option in page_options %}
+                                <option value="{{ page_option }}">{{ page_option }}</option>
                             {% endfor %}
                         </select>
                     </div>
