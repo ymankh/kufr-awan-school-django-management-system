@@ -1,5 +1,6 @@
 from random import shuffle
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import authenticate
@@ -16,6 +17,7 @@ from .models import (
     Group,
     Absence,
     ParticipationOption,
+    Participation,
 )
 
 
@@ -23,6 +25,7 @@ def validate_digit_length(national_id):
     return national_id.isdigit() and len(national_id) == 10
 
 
+@login_required
 def index(request):
     return render(request, "index.html")
 
@@ -135,29 +138,29 @@ def chose_grade(request):
     )
 
 
-# import csv
-#
-#
-# def test(request):
-#     with open('csv/7c.csv', 'r', encoding='utf-8') as file:
-#         file = csv.reader(file)
-#         i = 0
-#         for line in file:
-#             student = Student()
-#             student.full_name = line[0]
-#             start_at = "73000000"
-#             if i >= 10:
-#                 student.national_id = start_at + str(i)
-#             else:
-#                 student.national_id = start_at + "0" + str(i)
-#             student.grade = Grade.objects.get(grade="السابع")
-#             student.section = Section.objects.get(section="ج")
-#             try:
-#                 student.save()
-#             except:
-#                 pass
-#             i += 1
-#     return redirect('index')
+import csv
+
+
+def test(request):
+    with open('csv/7c.csv', 'r', encoding='utf-8') as file:
+        file = csv.reader(file)
+        i = 0
+        for line in file:
+            student = Student()
+            student.full_name = line[0]
+            start_at = "73000000"
+            if i >= 10:
+                student.national_id = start_at + str(i)
+            else:
+                student.national_id = start_at + "0" + str(i)
+            student.grade = Grade.objects.get(grade="السابع")
+            student.section = Section.objects.get(section="ج")
+            try:
+                student.save()
+            except:
+                pass
+            i += 1
+    return redirect('index')
 
 
 def edit_student_information(request, student_id):
@@ -229,9 +232,9 @@ def participation_table(request, grade_id, section_id, group_id):
         for p in participation:
             student, note, note_type = p.split(",")
             notes += [
-                StudentNote(student_id=student, note=note, note_type_id=note_type)
+                Participation(student_id=student, note=note, note_type_id=note_type)
             ]
-        StudentNote.objects.bulk_create(notes)
+        Participation.objects.bulk_create(notes)
         return redirect(
             participation_table,
             grade_id=grade_id,
@@ -242,9 +245,9 @@ def participation_table(request, grade_id, section_id, group_id):
     section = Section.objects.get(id=section_id)
     if group_id != 0:
         group = Group.objects.get(id=group_id)
-        students = Student.objects.filter(group=group, grade=grade, section=section)
+        students = Student.objects.annotate(p_count=Count("participation")).filter(group=group, grade=grade, section=section)
     else:
-        students = Student.objects.filter(grade=grade, section=section)
+        students = Student.objects.annotate(p_count=Count("participation")).filter(grade=grade, section=section)
     participation_options = ParticipationOption.objects.all()
     students = list(students)
     shuffle(students)

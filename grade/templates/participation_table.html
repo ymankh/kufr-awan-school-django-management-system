@@ -1,5 +1,5 @@
 {% extends "__bass.html" %}
-{% block title %} {{grade}} {{section}} Partesepation {{grade}} {% endblock %}
+{% block title %} {{grade}} {{section}} Partesepation  {% endblock %}
 {% block contant %}
     <div class="container">
         <form method="post">
@@ -10,12 +10,13 @@
                     <th scope="col">#</th>
                     <th scope="col">Name</th>
                     <th scope="col">participation</th>
+                    <th scope="col">p count</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for student in students %}
                     <tr>
-                        <th scope="row">{{ forloop.counter }}</th>
+                        <td scope="row">{{ forloop.counter }}</th>
                         <td><a href="{% url 'student_information_edit' student_id=student.id %}"
                                class="link-dark text">{{ student.full_name }}</a>
                         </td>
@@ -25,6 +26,7 @@
                                 <option value="{{ student.id }},{{p_option.note}},{{p_option.note_type.id}}"> {{ p_option }} </option>
                             {% endfor %}
                         </select></td>
+                        <td> {{student.p_count}} </td>
                     </tr>
                 {% endfor %}
                 </tbody>

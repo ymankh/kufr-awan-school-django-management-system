@@ -8,7 +8,7 @@ from django.dispatch import receiver
 
 def validate_digit_length(phone):
     if not (phone.isdigit() and len(phone) == 10):
-        raise ValueError('%(phone)s must be 10 digits')
+        raise ValueError("%(phone)s must be 10 digits")
 
 
 class Section(models.Model):
@@ -32,7 +32,9 @@ class Address(models.Model):
 
 
 class Phone(models.Model):
-    phone = models.CharField(max_length=10, validators=[validate_digit_length], unique=True)
+    phone = models.CharField(
+        max_length=10, validators=[validate_digit_length], unique=True
+    )
 
     def __str__(self):
         return self.phone
@@ -47,13 +49,20 @@ class Group(models.Model):
 
 class Student(models.Model):
     full_name = models.CharField(max_length=100, unique=True)
-    national_id = models.CharField(verbose_name="national id", max_length=10,
-                                   validators=[validate_digit_length], unique=True, null=True)
+    national_id = models.CharField(
+        verbose_name="national id",
+        max_length=10,
+        validators=[validate_digit_length],
+        unique=True,
+        null=True,
+    )
     grade = models.ForeignKey(Grade, null=True, on_delete=models.SET_NULL)
     section = models.ForeignKey(Section, null=True, on_delete=models.SET_NULL)
     group = models.ForeignKey(Group, null=True, on_delete=models.SET_NULL, blank=True)
     profile_pic = models.FileField(null=True, blank=True)
-    mobile = models.OneToOneField(Phone, on_delete=models.SET_NULL, null=True, blank=True)
+    mobile = models.OneToOneField(
+        Phone, on_delete=models.SET_NULL, null=True, blank=True
+    )
 
     @property
     def absence_count(self):
@@ -76,13 +85,13 @@ class Student(models.Model):
             user.save()
             super().save(*args, **kwargs)
 
+
 @receiver(pre_delete, sender=Student)
 def signal_function_name(sender, instance, using, **kwargs):
     try:
         user = User.objects.get(username=instance.national_id).delete()
     except:
         pass
-    
 
 
 class Absence(models.Model):
@@ -116,7 +125,9 @@ class ExamMark(models.Model):
     exam_type = models.ForeignKey(ExamType, on_delete=models.CASCADE)
     top_mark = 100
     student = models.ForeignKey(Student, null=True, on_delete=models.CASCADE)
-    exam_mark = models.IntegerField(validators=[MaxValueValidator(top_mark), MinValueValidator(0)], default=0)
+    exam_mark = models.IntegerField(
+        validators=[MaxValueValidator(top_mark), MinValueValidator(0)], default=0
+    )
 
     @property
     def exam_result(self):
@@ -138,12 +149,12 @@ class ExamMark(models.Model):
 
 class StudentNoteType(models.Model):
     TAGS_CHOICES = [
-        ('primary', 'primary'),
-        ('secondary', 'secondary'),
-        ('success', 'success'),
-        ('danger', 'danger'),
-        ('warning', 'warning'),
-        ('info', 'info')
+        ("primary", "primary"),
+        ("secondary", "secondary"),
+        ("success", "success"),
+        ("danger", "danger"),
+        ("warning", "warning"),
+        ("info", "info"),
     ]
     note_type = models.CharField(max_length=50)
     tag = models.CharField(max_length=10, choices=TAGS_CHOICES, default="", null=True)
@@ -169,13 +180,76 @@ class StudentNote(models.Model):
 
     def __str__(self):
         return self.student.full_name + " " + self.note[0:100]
-    
+
+
 class ParticipationOption(models.Model):
     note = models.CharField(max_length=255)
-    note_type = models.ForeignKey(StudentNoteType,  on_delete=models.CASCADE)
+    note_type = models.ForeignKey(StudentNoteType, on_delete=models.CASCADE)
 
-    def create_note(self, student:int):
+    def create_note(self, student: int):
         return StudentNote(student=student, note=self.note, not_type=self.note_type)
+
     def __str__(self):
-        return self.note 
-     
+        return self.note
+
+
+class Participation(models.Model):
+    student = models.ForeignKey(Student, null=True, on_delete=models.SET_NULL)
+    participation_option = models.ForeignKey(ParticipationOption, null=True, on_delete=models.SET_NULL)
+    subject = models.ForeignKey(StudentNoteType, null=True, on_delete=models.SET_NULL)
+    note_date = models.DateField(auto_now_add=True)
+    visible_to_student = models.BooleanField(default=False)
+
+    @property
+    def grade(self):
+        return self.student.grade.grade
+
+    @property
+    def section(self):
+        return self.student.section.section
+
+    def __str__(self):
+        return self.student.full_name + " " + self.note[0:100]
+    
+
+
+class Subject(models.Model):
+    name = models.CharField(max_length=255)
+    grade = models.ForeignKey(Grade, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.name} {self.grade.grade}"
+
+
+class HomeWork(models.Model):
+    name = models.CharField(max_length=255)
+    subject = models.ForeignKey(Subject, null=True, on_delete=models.SET_NULL)
+    section = models.ForeignKey(Grade, null=True, on_delete=models.SET_NULL)
+    date = models.DateField(auto_now_add=True)
+
+
+class SubjectModel(models.Model):
+    name = models.CharField(max_length=255)
+    subject = models.ForeignKey(Subject, null=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return self.name
+
+
+class Skill(models.Model):
+    name = models.CharField(max_length=255)
+    model = models.ForeignKey(SubjectModel, null=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return self.name
+
+
+class SkillOption(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
+class HomeWorkNote(StudentNote):
+    homeWork = models.ForeignKey(HomeWork, null=True, on_delete=models.SET_NULL)

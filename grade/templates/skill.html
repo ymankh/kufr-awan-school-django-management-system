@@ -1,5 +1,5 @@
 {% extends "__bass.html" %}
-{% block title %} students table {% endblock %}
+{% block title %} {{grade}} {{section}} {{subject}} {{skill}} {% endblock %}
 {% block contant %}
     <div class="container">
         <table class="table table-hover">
@@ -23,7 +23,7 @@
              {% for student in students %}
                 <tr>
                     <th scope="row">{{ forloop.counter }}</th>
-                    <td><a style="text-decoration:none" href="{% url 'student_information_edit' student_id=student.id %}"
+                    <td><a href="{% url 'student_information_edit' student_id=student.id %}"
                            class="link-dark text">{{ student.full_name }}</a>
                     </td>
                     <td>{{ student.absence__count}}</td>
