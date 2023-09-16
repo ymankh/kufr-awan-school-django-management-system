@@ -110,6 +110,9 @@ class Absence(models.Model):
 
     def __str__(self):
         return self.student.full_name
+    
+    class Meta:
+        unique_together = ["student", "absence_date"]
 
 
 class ExamType(models.Model):
@@ -193,10 +196,19 @@ class ParticipationOption(models.Model):
         return self.note
 
 
+
+
+class Subject(models.Model):
+    name = models.CharField(max_length=255)
+    grade = models.ForeignKey(Grade, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.name} {self.grade.grade}"
+
 class Participation(models.Model):
     student = models.ForeignKey(Student, null=True, on_delete=models.SET_NULL)
     participation_option = models.ForeignKey(ParticipationOption, null=True, on_delete=models.SET_NULL)
-    subject = models.ForeignKey(StudentNoteType, null=True, on_delete=models.SET_NULL)
+    subject = models.ForeignKey(Subject, null=True,blank=True, on_delete=models.SET_NULL)
     note_date = models.DateField(auto_now_add=True)
     visible_to_student = models.BooleanField(default=False)
 
@@ -209,17 +221,8 @@ class Participation(models.Model):
         return self.student.section.section
 
     def __str__(self):
-        return self.student.full_name + " " + self.note[0:100]
+        return self.student.full_name + " " + self.participation_option.note[0:100]
     
-
-
-class Subject(models.Model):
-    name = models.CharField(max_length=255)
-    grade = models.ForeignKey(Grade, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.name} {self.grade.grade}"
-
 
 class HomeWork(models.Model):
     name = models.CharField(max_length=255)

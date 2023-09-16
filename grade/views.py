@@ -25,7 +25,6 @@ def validate_digit_length(national_id):
     return national_id.isdigit() and len(national_id) == 10
 
 
-@login_required
 def index(request):
     return render(request, "index.html")
 
@@ -90,7 +89,7 @@ def absence_table(request, grade_id, section_id, group_id):
                 [
                     Absence(student=Student(id=stu_id))
                     for stu_id in data.getlist("absence")
-                ]
+                ], ignore_conflicts=True
             )
     if group_id == 0:
         students = (
@@ -133,34 +132,32 @@ def chose_grade(request):
             "sections": Section.objects.all(),
             "grades": Grade.objects.all(),
             "groups": Group.objects.all(),
-            "page_options": ["students_table", "participation_table"]
+            "page_options": ["students_table", "participation_table"],
         },
     )
 
 
-import csv
-
-
-def test(request):
-    with open('csv/7c.csv', 'r', encoding='utf-8') as file:
-        file = csv.reader(file)
-        i = 0
-        for line in file:
-            student = Student()
-            student.full_name = line[0]
-            start_at = "73000000"
-            if i >= 10:
-                student.national_id = start_at + str(i)
-            else:
-                student.national_id = start_at + "0" + str(i)
-            student.grade = Grade.objects.get(grade="السابع")
-            student.section = Section.objects.get(section="ج")
-            try:
-                student.save()
-            except:
-                pass
-            i += 1
-    return redirect('index')
+# import csv
+# def test(request):
+#     with open('csv/7c.csv', 'r', encoding='utf-8') as file:
+#         file = csv.reader(file)
+#         i = 0
+#         for line in file:
+#             student = Student()
+#             student.full_name = line[0]
+#             start_at = "73000000"
+#             if i >= 10:
+#                 student.national_id = start_at + str(i)
+#             else:
+#                 student.national_id = start_at + "0" + str(i)
+#             student.grade = Grade.objects.get(grade="السابع")
+#             student.section = Section.objects.get(section="ج")
+#             try:
+#                 student.save()
+#             except:
+#                 pass
+#             i += 1
+#     return redirect('index')
 
 
 def edit_student_information(request, student_id):
@@ -201,8 +198,10 @@ def edit_student_information(request, student_id):
                     note_type=StudentNoteType(id=data["note_type"]),
                     note=data["note_text"],
                 ).save()
-
         return redirect("student_information_edit", student_id=student_id)
+    participations = Participation.objects.select_related(
+        "participation_option","participation_option__note_type"
+    ).filter(student=student)
     return render(
         request,
         "student_edit.html",
@@ -212,6 +211,7 @@ def edit_student_information(request, student_id):
             "note_types": StudentNoteType.objects.all(),
             "notes": StudentNote.objects.filter(student=student),
             "absences": Absence.objects.filter(student=student),
+            "participations": participations,
         },
     )
 
@@ -230,9 +230,11 @@ def participation_table(request, grade_id, section_id, group_id):
         notes = []
         print(participation)
         for p in participation:
-            student, note, note_type = p.split(",")
+            student, participation_option = p.split(",")
             notes += [
-                Participation(student_id=student, note=note, note_type_id=note_type)
+                Participation(
+                    student_id=student, participation_option_id=participation_option
+                )
             ]
         Participation.objects.bulk_create(notes)
         return redirect(
@@ -245,9 +247,13 @@ def participation_table(request, grade_id, section_id, group_id):
     section = Section.objects.get(id=section_id)
     if group_id != 0:
         group = Group.objects.get(id=group_id)
-        students = Student.objects.annotate(p_count=Count("participation")).filter(group=group, grade=grade, section=section)
+        students = Student.objects.annotate(p_count=Count("participation")).filter(
+            group=group, grade=grade, section=section
+        )
     else:
-        students = Student.objects.annotate(p_count=Count("participation")).filter(grade=grade, section=section)
+        students = Student.objects.annotate(p_count=Count("participation")).filter(
+            grade=grade, section=section
+        )
     participation_options = ParticipationOption.objects.all()
     students = list(students)
     shuffle(students)
@@ -257,5 +263,7 @@ def participation_table(request, grade_id, section_id, group_id):
         context={
             "students": students,
             "participation_options": participation_options,
+            "grade": grade,
+            "section": section,
         },
     )

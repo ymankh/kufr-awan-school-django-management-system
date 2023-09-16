@@ -23,7 +23,7 @@
                         <td><select class="form-select" aria-label="participation" name="participations">
                             <option disabled selected>---</option>
                             {% for p_option in participation_options %}
-                                <option value="{{ student.id }},{{p_option.note}},{{p_option.note_type.id}}"> {{ p_option }} </option>
+                                <option value="{{ student.id }},{{p_option.id}}"> {{ p_option }} </option>
                             {% endfor %}
                         </select></td>
                         <td> {{student.p_count}} </td>

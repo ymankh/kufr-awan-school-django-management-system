@@ -28,7 +28,7 @@
                     </form>
                 </div>
             </div>
-            <div class="list-group col col-lg-6 my-4">
+            <div class="list-group col col-12  col-lg-6 my-4">
                 <span class="list-group-item list-group-item-action flex-column align-items-start active">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">Student Notes</h5>
@@ -56,7 +56,7 @@
                     <span
                             class="list-group-item list-group-item-action flex-column align-items-start">
                         <div class="d-flex w-100 justify-content-between">
-                            <h4 class="mb-1">There are no notes yet...</h4>
+                            <h4 class="mb-1 text-muted">There are no notes yet...</h4>
                         </div>
                     </span>
                 {% endif %}
@@ -88,11 +88,46 @@
                 {% else %}
                     <div class="list-group-item list-group-item-action flex-column align-items-start">
                         <div class="d-flex w-100 justify-content-between">
-                            <h4 class="mb-1">There are no absences yet...</h4>
+                            <h4 class="mb-1 text-muted">There are no absences yet...</h4>
                         </div>
                     </div>
                 {% endif %}
             </div>
+
+            <div class="list-group col col-lg-6 my-4">
+                <span class="list-group-item list-group-item-action flex-column align-items-start active">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">Partesepations</h5>
+                    </div>
+                </span>
+                {% if participations %}
+                <form method="POST" id="delete_notes" name="delete_notes">
+                    {% csrf_token %}
+                    {% for participation in participations %}
+                        <span
+                                class="list-group-item list-group-item-action flex-column align-items-start list-group-item-{{ participation.participation_option.note_type.tag }}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ participation.participation_option.note }}</h5>
+                                <small>{{ participation.note_date }} <input class="form-check-input note-checkbox"
+                                                                   type="checkbox" name="deleted_notes_list"
+                                                                   value="{{ participation.id }}" id="p-{{ participation.id }}">
+                                </small>
+                            </div>
+                        </span>
+                    {% endfor %}
+                        <button type="submit" name="del_note_list" id="delete3" class="btn btn-danger m-1">
+                            Delete Selected</button>
+                        </form>
+                {% else %}
+                    <span
+                            class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h4 class="mb-1 text-muted">There student has not participated yet...</h4>
+                        </div>
+                    </span>
+                {% endif %}
+            </div>
+
         </div>
     </div>
 {% endblock %}

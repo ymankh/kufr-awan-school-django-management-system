@@ -9,7 +9,7 @@ admin.site.site_header = "Kofer awan school system"
 class SectionAdmin(admin.ModelAdmin):
     pass
 
-
+@admin.register(Grade)
 class GradeAdmin(admin.ModelAdmin):
     pass
 
@@ -20,10 +20,12 @@ class AbsenceAdmin(admin.ModelAdmin):
     list_filter = ("student", "absence_date", "student__grade", "student__section")
 
 
+@admin.register(ExamType)
 class ExamTypeAdmin(admin.ModelAdmin):
     pass
 
 
+@admin.register(ExamMark)
 class ExamMarkAdmin(admin.ModelAdmin):
     list_display = ("student",)
 
@@ -39,6 +41,7 @@ class StudentAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(StudentNoteType)
 class StudentNoteTypeAdmin(admin.ModelAdmin):
     pass
 
@@ -57,6 +60,7 @@ class StudentNoteAdmin(admin.ModelAdmin):
     list_filter = ("student__grade", "student__section")
 
 
+@admin.register(ParticipationOption)
 class ParticipationOptionAdmin(admin.ModelAdmin):
     pass
 
@@ -66,15 +70,17 @@ class ParticipationAdmin(admin.ModelAdmin):
     pass
 
 
+@admin.register(Address)
 class AddressAdmin(admin.ModelAdmin):
     pass
 
 
-# @admin.register(Phone)
-# class PhoneAdmin(admin.ModelAdmin):
-#     pass
+@admin.register(Phone)
+class PhoneAdmin(admin.ModelAdmin):
+    pass
 
 
+@admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
     list_display = ("group",)
 
@@ -84,6 +90,7 @@ class SubjectAdmin(admin.ModelAdmin):
     list_display = ("name", "grade")
 
 
+@admin.register(HomeWork)
 class HomeWorkAdmin(admin.ModelAdmin):
     pass
 
@@ -97,6 +104,7 @@ class SubjectModelAdmin(admin.ModelAdmin):
 class SkillAdmin(admin.ModelAdmin):
     pass
 
-# @admin.register(SkillOption)
+
+@admin.register(SkillOption)
 class skillOptionAdmin(admin.ModelAdmin):
     pass

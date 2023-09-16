@@ -12,7 +12,7 @@ urlpatterns = [
         name="students_table",
     ),
     path("chose_grade/", views.chose_grade, name="chose_grade"),
-    #     path('test/', views.test, name='test'),
+    # path("test/", views.test, name="test"),
     path(
         "single_student/<int:student_id>/",
         views.edit_student_information,
