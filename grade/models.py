@@ -77,7 +77,7 @@ class Student(models.Model):
             super().save(*args, **kwargs)
         else:
             user = User()
-            user.username = self.national_id
+            user.username = self.national_id  # type: ignore
             user.set_password(self.national_id)
             name = self.full_name.split(" ")
             user.first_name = name[0]
@@ -110,7 +110,7 @@ class Absence(models.Model):
 
     def __str__(self):
         return self.student.full_name
-    
+
     class Meta:
         unique_together = ["student", "absence_date"]
 
@@ -196,8 +196,6 @@ class ParticipationOption(models.Model):
         return self.note
 
 
-
-
 class Subject(models.Model):
     name = models.CharField(max_length=255)
     grade = models.ForeignKey(Grade, on_delete=models.CASCADE)
@@ -205,10 +203,15 @@ class Subject(models.Model):
     def __str__(self):
         return f"{self.name} {self.grade.grade}"
 
+
 class Participation(models.Model):
     student = models.ForeignKey(Student, null=True, on_delete=models.SET_NULL)
-    participation_option = models.ForeignKey(ParticipationOption, null=True, on_delete=models.SET_NULL)
-    subject = models.ForeignKey(Subject, null=True,blank=True, on_delete=models.SET_NULL)
+    participation_option = models.ForeignKey(
+        ParticipationOption, null=True, on_delete=models.SET_NULL
+    )
+    subject = models.ForeignKey(
+        Subject, null=True, blank=True, on_delete=models.SET_NULL
+    )
     note_date = models.DateField(auto_now_add=True)
     visible_to_student = models.BooleanField(default=False)
 
@@ -222,7 +225,7 @@ class Participation(models.Model):
 
     def __str__(self):
         return self.student.full_name + " " + self.participation_option.note[0:100]
-    
+
 
 class HomeWork(models.Model):
     name = models.CharField(max_length=255)
@@ -239,6 +242,14 @@ class SubjectModel(models.Model):
         return self.name
 
 
+class SkillOption(models.Model):
+    name = models.CharField(max_length=255)
+    type = models.ForeignKey(StudentNoteType, null=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return self.name
+
+
 class Skill(models.Model):
     name = models.CharField(max_length=255)
     model = models.ForeignKey(SubjectModel, null=True, on_delete=models.SET_NULL)
@@ -247,12 +258,15 @@ class Skill(models.Model):
         return self.name
 
 
-class SkillOption(models.Model):
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.name
-
-
 class HomeWorkNote(StudentNote):
     homeWork = models.ForeignKey(HomeWork, null=True, on_delete=models.SET_NULL)
+
+
+class SkillNote(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+    skill_option = models.ForeignKey(SkillOption, on_delete=models.CASCADE)
+    date = models.DateField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f"{self.student} {self.skill_option}"

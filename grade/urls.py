@@ -23,4 +23,14 @@ urlpatterns = [
         views.participation_table,
         name="participation_table",
     ),
+    path(
+        "skill/<int:skill_id>/",
+        views.skills_table,
+        name="skill",
+    ),
+    path(
+    "chose_skill/<int:grade_id>/<int:section_id>/<int:group_id>/",
+    views.chose_skill,
+    name="chose_skill",
+    ),
 ]

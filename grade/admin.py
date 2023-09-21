@@ -102,9 +102,16 @@ class SubjectModelAdmin(admin.ModelAdmin):
 
 @admin.register(Skill)
 class SkillAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('id', 'name', 'model')
 
 
 @admin.register(SkillOption)
-class skillOptionAdmin(admin.ModelAdmin):
+class SkillOptionAdmin(admin.ModelAdmin):
     pass
+
+@admin.register(SkillNote)
+class SkillNoteAdmin(admin.ModelAdmin):
+    list_display = ("student", "skill", "skill_option", "grade")
+    list_editable = ("skill_option",)
+    def grade(self, obj):
+        return obj.student.grade

@@ -14,7 +14,7 @@
                             <select class="form-select" aria-label="Default select example" name="note_type">
                                 <option disabled selected>select the note type</option>
                                 {% for note_type in note_types %}
-                                    <option value="{{ note_type.id }}">{{ note_type.NoteType }}
+                                    <option value="{{ note_type.id }}">{{ note_type }}
                                         - {{ note_type.tag }}</option>
                                 {% endfor %}
                             </select>
@@ -101,7 +101,7 @@
                     </div>
                 </span>
                 {% if participations %}
-                <form method="POST" id="delete_notes" name="delete_notes">
+                <form method="POST" id="delete_participations" name="participations">
                     {% csrf_token %}
                     {% for participation in participations %}
                         <span
@@ -109,13 +109,13 @@
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">{{ participation.participation_option.note }}</h5>
                                 <small>{{ participation.note_date }} <input class="form-check-input note-checkbox"
-                                                                   type="checkbox" name="deleted_notes_list"
+                                                                   type="checkbox" name="deleted_participations_list"
                                                                    value="{{ participation.id }}" id="p-{{ participation.id }}">
                                 </small>
                             </div>
                         </span>
                     {% endfor %}
-                        <button type="submit" name="del_note_list" id="delete3" class="btn btn-danger m-1">
+                        <button type="submit" id="delete3" class="btn btn-danger m-1">
                             Delete Selected</button>
                         </form>
                 {% else %}

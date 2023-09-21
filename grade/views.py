@@ -18,6 +18,11 @@ from .models import (
     Absence,
     ParticipationOption,
     Participation,
+    Skill,
+    SkillOption,
+    SkillNote,
+    SubjectModel,
+    Subject,
 )
 
 
@@ -89,7 +94,8 @@ def absence_table(request, grade_id, section_id, group_id):
                 [
                     Absence(student=Student(id=stu_id))
                     for stu_id in data.getlist("absence")
-                ], ignore_conflicts=True
+                ],
+                ignore_conflicts=True,
             )
     if group_id == 0:
         students = (
@@ -125,6 +131,11 @@ def chose_grade(request):
     if request.GET:
         data = request.GET
         return redirect(data["page"], data["grade"], data["section"], data["group"])
+    page_options = (
+        ["students_table", "Absence"],
+        ["participation_table", "Participation"],
+        ["chose_skill", "Chose Skill"],
+    )
     return render(
         request,
         "chose_grade.html",
@@ -132,7 +143,7 @@ def chose_grade(request):
             "sections": Section.objects.all(),
             "grades": Grade.objects.all(),
             "groups": Group.objects.all(),
-            "page_options": ["students_table", "participation_table"],
+            "page_options": page_options,
         },
     )
 
@@ -170,13 +181,17 @@ def edit_student_information(request, student_id):
     if request.method == "POST":
         data = request.POST
         # delete list of selected notes
-        if "deleted_notes_list" in data and data["deleted_notes_list"]:
+        if "deleted_notes_list" in data:
             StudentNote.objects.filter(
                 id__in=data.getlist("deleted_notes_list")
             ).delete()
-        elif "absences" in data and data["absences"]:
+        elif "absences" in data:
             Absence.objects.filter(id__in=data.getlist("absences")).delete()
         # add a written note to the student.
+        elif "deleted_participations_list" in data:
+            Participation.objects.filter(
+                id__in=data.getlist("deleted_participations_list")
+            ).delete()
         elif "note_type" in data:
             # check for missing fields
             if not data.get("note_type"):
@@ -200,7 +215,7 @@ def edit_student_information(request, student_id):
                 ).save()
         return redirect("student_information_edit", student_id=student_id)
     participations = Participation.objects.select_related(
-        "participation_option","participation_option__note_type"
+        "participation_option", "participation_option__note_type"
     ).filter(student=student)
     return render(
         request,
@@ -228,7 +243,6 @@ def participation_table(request, grade_id, section_id, group_id):
         data = request.POST
         participation = data.getlist("participations")
         notes = []
-        print(participation)
         for p in participation:
             student, participation_option = p.split(",")
             notes += [
@@ -267,3 +281,70 @@ def participation_table(request, grade_id, section_id, group_id):
             "section": section,
         },
     )
+
+
+def skills_table(request, grade_id, section_id, group_id, skill_id):
+    if not request.user.is_staff:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            message="you dont have the permission to Enter this page!!",
+        )
+        return redirect("index")
+    if request.method == "POST":
+        data = request.POST
+        skills = data.getlist("skills")
+        notes = []
+        for skill in skills:
+            student, skill_id = skill.split(",")
+            notes += [
+                SkillNote(
+                    student_id=student,
+                    model_id=model_id,
+                )
+            ]
+        Participation.objects.bulk_create(notes)
+        return redirect(
+            participation_table,
+            grade_id=grade_id,
+            section_id=section_id,
+            group_id=group_id,
+        )
+    grade = Grade.objects.get(id=grade_id)
+    section = Section.objects.get(id=section_id)
+    if group_id != 0:
+        group = Group.objects.get(id=group_id)
+        students = Student.objects.annotate(p_count=Count("participation")).filter(
+            group=group, grade=grade, section=section
+        )
+    else:
+        students = Student.objects.annotate(p_count=Count("participation")).filter(
+            grade=grade, section=section
+        )
+    participation_options = ParticipationOption.objects.all()
+    students = list(students)
+    shuffle(students)
+    return render(
+        request,
+        "skill.html",
+        context={
+            "students": students,
+            "participation_options": participation_options,
+            "grade": grade,
+            "section": section,
+        },
+    )
+
+
+def chose_skill(request, grade_id, section_id, group_id):
+    if request.method == "POST":
+        data = request.POST
+        if "subject" in data:
+            subject = data["subject"] 
+            models = SubjectModel.objects.filter(subject_id=subject)
+            skills = ((model, Skill.objects.filter(model=model)) for model in models)
+            return render(request, "chose_skill.html",{"skills":skills})
+    subjects = Subject.objects.filter(grade_id=grade_id)
+    return render(request, "chose_skill.html",{"subjects":subjects})
+
+
