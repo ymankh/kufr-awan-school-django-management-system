@@ -24,7 +24,7 @@ urlpatterns = [
         name="participation_table",
     ),
     path(
-        "skill/<int:skill_id>/",
+        "skill/<int:grade_id>/<int:section_id>/<int:group_id>/<int:skill_id>/",
         views.skills_table,
         name="skill",
     ),

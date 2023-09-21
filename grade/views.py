@@ -344,6 +344,8 @@ def chose_skill(request, grade_id, section_id, group_id):
             models = SubjectModel.objects.filter(subject_id=subject)
             skills = ((model, Skill.objects.filter(model=model)) for model in models)
             return render(request, "chose_skill.html",{"skills":skills})
+        if "skill" in data:
+            return redirect(skills_table,  grade_id, section_id, group_id, data["skill"])
     subjects = Subject.objects.filter(grade_id=grade_id)
     return render(request, "chose_skill.html",{"subjects":subjects})
 
