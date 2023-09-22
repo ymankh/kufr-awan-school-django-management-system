@@ -8,6 +8,8 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Count
 from django.contrib.admin.views.decorators import staff_member_required
+
+from django.shortcuts import get_object_or_404
 from .models import (
     Student,
     StudentNote,
@@ -291,6 +293,7 @@ def skills_table(request, grade_id, section_id, group_id, skill_id):
             message="you dont have the permission to Enter this page!!",
         )
         return redirect("index")
+    skill = get_object_or_404(Skill, id=skill_id)
     if request.method == "POST":
         data = request.POST
         skills = data.getlist("skills")
@@ -298,9 +301,9 @@ def skills_table(request, grade_id, section_id, group_id, skill_id):
         for skill in skills:
             student, skill_id = skill.split(",")
             notes += [
-                SkillNote(
+                SkillNote.get_ore_create(
                     student_id=student,
-                    model_id=model_id,
+                    skill_id=model_id,
                 )
             ]
         Participation.objects.bulk_create(notes)
@@ -321,17 +324,16 @@ def skills_table(request, grade_id, section_id, group_id, skill_id):
         students = Student.objects.annotate(p_count=Count("participation")).filter(
             grade=grade, section=section
         )
-    participation_options = ParticipationOption.objects.all()
-    students = list(students)
-    shuffle(students)
+    skill_options = SkillOption.objects.all()
     return render(
         request,
         "skill.html",
         context={
             "students": students,
-            "participation_options": participation_options,
+            "participation_options": skill_options,
             "grade": grade,
             "section": section,
+            "skill": skill,
         },
     )
 

@@ -266,7 +266,10 @@ class SkillNote(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
     skill_option = models.ForeignKey(SkillOption, on_delete=models.CASCADE)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField(auto_now=True)
 
     def __str__(self) -> str:
         return f"{self.student} {self.skill_option}"
+    
+    class Meta:
+        unique_together = ["student", "skill"]
