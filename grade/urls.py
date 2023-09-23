@@ -33,4 +33,5 @@ urlpatterns = [
     views.chose_skill,
     name="chose_skill",
     ),
+    path("temp/", views.temp),
 ]

@@ -1,0 +1,63 @@
+{% extends "__bass.html" %} {% block contant %}
+    <div class="container">
+        <h1> class </h1>
+
+        {% for t in table %}
+        <h3>{{t}}</h3>{% endfor %}
+
+
+        <table class="table table-striped table-bordered mt-4 table-hover">
+            <thead class="thead-dark">
+              <tr class="text-center">
+                <th rowspan="2">ID</th>
+                <th rowspan="2" class="align-middle">Student</th>
+                {% for model in models %}
+                <th colspan="3">{{model.0}}</th>
+                {% endfor %}
+                
+              </tr>
+              <tr>
+                <th>Skill 1</th>
+                <th>Skill 2</th>
+                <th>Skill 3</th>
+                <th>Skill 1</th>
+                <th>Skill 2</th>
+                <th>Skill 3</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Khaled</td>
+                <td>Excellent</td>
+                <td>Weak</td>
+                <td>--</td>
+                <td>Good</td>
+                <td>--</td>
+                <td>Very Good</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>Khaled</td>
+                <td>Excellent</td>
+                <td>Weak</td>
+                <td>--</td>
+                <td>Good</td>
+                <td>--</td>
+                <td>Very Good</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>Khaled</td>
+                <td>Excellent</td>
+                <td>Weak</td>
+                <td>--</td>
+                <td>Good</td>
+                <td>--</td>
+                <td>Very Good</td>
+              </tr>
+            </tbody>
+          </table>
+                    
+    </div>
+    {% endblock contant %}

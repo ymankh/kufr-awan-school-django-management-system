@@ -342,13 +342,25 @@ def chose_skill(request, grade_id, section_id, group_id):
     if request.method == "POST":
         data = request.POST
         if "subject" in data:
-            subject = data["subject"] 
+            subject = data["subject"]
             models = SubjectModel.objects.filter(subject_id=subject)
             skills = ((model, Skill.objects.filter(model=model)) for model in models)
-            return render(request, "chose_skill.html",{"skills":skills})
+            return render(request, "chose_skill.html", {"skills": skills})
         if "skill" in data:
-            return redirect(skills_table,  grade_id, section_id, group_id, data["skill"])
+            return redirect(skills_table, grade_id, section_id, group_id, data["skill"])
     subjects = Subject.objects.filter(grade_id=grade_id)
-    return render(request, "chose_skill.html",{"subjects":subjects})
+    return render(request, "chose_skill.html", {"subjects": subjects})
 
 
+def temp(request):
+    grade_id = 1
+    section_id = 1
+    subject_id = 1
+    students = Student.objects.values_list("id", "full_name").filter(grade_id=grade_id, section_id=section_id)
+    models = SubjectModel.objects.filter(subject_id=subject_id).values_list("name").annotate(count=Count("skill"))
+    table = []
+    skills_notes = SkillNote.objects.filter(student_id__in=[student[0] for student in students]).values_list("skill","student_id", "student__full_name", )
+
+    
+
+    return render(request, "temp.html", context={"table": skills_notes, "models":models})

@@ -7,11 +7,11 @@ admin.site.site_header = "Kofer awan school system"
 
 @admin.register(Section)
 class SectionAdmin(admin.ModelAdmin):
-    pass
+    list_display=("id", "section", )
 
 @admin.register(Grade)
 class GradeAdmin(admin.ModelAdmin):
-    pass
+    list_display=("id", "grade", ) 
 
 
 @admin.register(Absence)
@@ -87,7 +87,7 @@ class GroupAdmin(admin.ModelAdmin):
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
-    list_display = ("name", "grade")
+    list_display = ("id", "name", "grade")
 
 
 @admin.register(HomeWork)
