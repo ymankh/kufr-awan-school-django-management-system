@@ -352,15 +352,50 @@ def chose_skill(request, grade_id, section_id, group_id):
     return render(request, "chose_skill.html", {"subjects": subjects})
 
 
-def temp(request):
-    grade_id = 1
-    section_id = 1
-    subject_id = 1
-    students = Student.objects.values_list("id", "full_name").filter(grade_id=grade_id, section_id=section_id)
-    models = SubjectModel.objects.filter(subject_id=subject_id).values_list("name").annotate(count=Count("skill"))
+def subject_skill_table(request, grade_id, section_id,group_id, subject_id):
+    subject = get_object_or_404(Subject, id=subject_id)
+    grade = get_object_or_404(Grade, id=grade_id)
+    section = get_object_or_404(Section, id=section_id)
+    students = Student.objects.values_list("id", "full_name").filter(
+        grade_id=grade_id, section_id=section_id
+    )
+    students_ids = [student[0] for student in students]
+    models = SubjectModel.objects.filter(subject_id=subject_id).values_list(
+        "id", "name"
+    )
+    models_ids = [model[0] for model in models]
+    skills = [
+        Skill.objects.filter(model_id=model_id).values_list("id", "name")
+        for model_id in models_ids
+    ]
+    model_skill_counts = [len(model_skills) for model_skills in skills]
+    skills = [x for y in skills for x in y]
+    skills_notes = SkillNote.objects.filter(student_id__in=students_ids).values_list(
+        "skill_id",
+        "student_id",
+        "skill_option__name"
+    )
+    students_with_notes_ids = [skill_note[1] for skill_note in skills_notes]
+    num_of_skills = sum(model_skill_counts)
     table = []
-    skills_notes = SkillNote.objects.filter(student_id__in=[student[0] for student in students]).values_list("skill","student_id", "student__full_name", )
-
-    
-
-    return render(request, "temp.html", context={"table": skills_notes, "models":models})
+    skills_ids = [skill[0] for skill in skills]
+    for student in students:
+        row = ["____", ] * (num_of_skills + 1)
+        row[0] = student[1]
+        if student[0] in students_with_notes_ids:
+            student_notes = skills_notes.filter(student__id=student[0])
+            for skill_note in student_notes:
+                row[skills_ids.index(skill_note[0]) + 1] = skill_note[2]
+        table.append(row)
+    return render(
+        request,
+        "subject_skill_table.html",
+        context={
+            "table": table,
+            "models": zip(models, model_skill_counts),
+            "skills": skills,
+            "subject": subject,
+            "grade": grade,
+            "section": section,
+        },
+    )

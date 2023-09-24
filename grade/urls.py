@@ -29,9 +29,13 @@ urlpatterns = [
         name="skill",
     ),
     path(
-    "chose_skill/<int:grade_id>/<int:section_id>/<int:group_id>/",
-    views.chose_skill,
-    name="chose_skill",
+        "chose_skill/<int:grade_id>/<int:section_id>/<int:group_id>/",
+        views.chose_skill,
+        name="chose_skill",
     ),
-    path("temp/", views.temp),
+    path(
+        "subject_skill_table/<int:grade_id>/<int:section_id>/<int:group_id>/<int:subject_id>/",
+        views.subject_skill_table,
+        name="subject_skill_table",
+    ),
 ]
