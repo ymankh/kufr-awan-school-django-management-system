@@ -14,8 +14,9 @@
               </tr>
               <tr>
                 {% for skill in skills %}
-                <th>{{skill.1}}</th>
+                <th> <a class="link-dark font-weight-normal font-" href="{% url "skill"  grade_id=grade.id section_id=section.id group_id=group_id skill_id=skill.0  %}"> {{skill.1}} </a> </th>
                 {% endfor %}
+                
               </tr>
             </thead>
             <tbody>

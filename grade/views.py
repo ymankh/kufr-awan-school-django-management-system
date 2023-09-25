@@ -8,7 +8,6 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Count
 from django.contrib.admin.views.decorators import staff_member_required
-
 from django.shortcuts import get_object_or_404
 from .models import (
     Student,
@@ -301,12 +300,12 @@ def skills_table(request, grade_id, section_id, group_id, skill_id):
         for skill in skills:
             student, skill_id = skill.split(",")
             notes += [
-                SkillNote.get_ore_create(
+                SkillNote.objects.get(
                     student_id=student,
-                    skill_id=model_id,
+                    skill_id=skill_id,
                 )
             ]
-        Participation.objects.bulk_create(notes)
+        SkillNote.objects.bulk_create(notes)
         return redirect(
             participation_table,
             grade_id=grade_id,
@@ -397,5 +396,6 @@ def subject_skill_table(request, grade_id, section_id,group_id, subject_id):
             "subject": subject,
             "grade": grade,
             "section": section,
+            "group_id":group_id,
         },
     )
