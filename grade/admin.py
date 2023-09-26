@@ -107,7 +107,8 @@ class SkillAdmin(admin.ModelAdmin):
 
 @admin.register(SkillOption)
 class SkillOptionAdmin(admin.ModelAdmin):
-    pass
+    list_display = ("name", "type", "value")
+    list_editable = ("value",)
 
 @admin.register(SkillNote)
 class SkillNoteAdmin(admin.ModelAdmin):

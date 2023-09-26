@@ -245,9 +245,12 @@ class SubjectModel(models.Model):
 class SkillOption(models.Model):
     name = models.CharField(max_length=255)
     type = models.ForeignKey(StudentNoteType, null=True, on_delete=models.SET_NULL)
-
+    value = models.IntegerField(blank=True, null=True, default=1)
     def __str__(self):
         return self.name
+    class Meta:
+        ordering = ['-value']
+        
 
 
 class Skill(models.Model):
@@ -265,7 +268,7 @@ class HomeWorkNote(StudentNote):
 class SkillNote(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
-    skill_option = models.ForeignKey(SkillOption, on_delete=models.CASCADE)
+    skill_option = models.ForeignKey(SkillOption, null=True, on_delete=models.CASCADE)
     date = models.DateField(auto_now=True)
 
     def __str__(self) -> str:

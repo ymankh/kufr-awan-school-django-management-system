@@ -38,4 +38,9 @@ urlpatterns = [
         views.subject_skill_table,
         name="subject_skill_table",
     ),
+    path(
+        "chose_subject_for_skill_table/<int:grade_id>/<int:section_id>/<int:group_id>/",
+        views.chose_subject_for_skill_table,
+        name="chose_subject_for_skill_table",
+    ),
 ]

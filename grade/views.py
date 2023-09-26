@@ -27,11 +27,13 @@ from .models import (
 )
 
 
-def only_staff_message(request):
+def only_staff_message(
+    request, message="you dont have the permission to Enter this page!!"
+):
     messages.add_message(
         request,
         messages.WARNING,
-        message="you dont have the permission to Enter this page!!",
+        message=message,
     )
     return redirect("index")
 
@@ -140,6 +142,7 @@ def chose_grade(request):
         ["students_table", "Absence"],
         ["participation_table", "Participation"],
         ["chose_skill", "Chose Skill"],
+        ["chose_subject_for_skill_table", "Subject Skill Table"],
     )
     return render(
         request,
@@ -289,31 +292,39 @@ def skills_table(request, grade_id, section_id, group_id, skill_id):
     section = get_object_or_404(Section, id=section_id)
     if group_id != 0:
         group = Group.objects.get(id=group_id)
-        students = Student.objects.filter(group=group, grade=grade, section=section)
+        students = Student.objects.filter(
+            group=group, grade=grade, section=section
+        ).values_list("id", "name")
     else:
         students = Student.objects.filter(grade=grade, section=section)
     skill = get_object_or_404(Skill, id=skill_id)
-    skill_notes = SkillNote.objects.filter(student_id__in=(0, 0))
     if request.method == "POST":
         data = request.POST
         skills = data.getlist("skills")
         notes = []
         for skill in skills:
-            student, skill_id = skill.split(",")
-            notes += [
-                SkillNote.objects.get(
-                    student_id=student,
-                    skill_id=skill_id,
-                )
-            ]
-        SkillNote.objects.bulk_create(notes)
+            student_id, p_option = skill.split(",")
+            obj, created = SkillNote.objects.get_or_create(
+                student_id=student_id, skill_id=skill_id
+            )
+            if created:
+                # If the object is created, set its value
+                obj.skill_option_id = p_option
+                notes.append(obj)
+            else:
+                obj.skill_option_id = p_option
+                notes.append(obj)
+        if notes:
+            SkillNote.objects.bulk_update(notes, fields=["skill_option"])
         return redirect(
-            participation_table,
+            "subject_skill_table",
             grade_id=grade_id,
             section_id=section_id,
             group_id=group_id,
+            subject_id=Skill.objects.get(id=skill_id).model.subject.pk,
         )
     skill_options = SkillOption.objects.all()
+    table = []
     return render(
         request,
         "skill.html",
@@ -364,6 +375,8 @@ def subject_skill_table(request, grade_id, section_id, group_id, subject_id):
     skills_notes = SkillNote.objects.filter(student_id__in=students_ids).values_list(
         "skill_id", "student_id", "skill_option__name"
     )
+    if not skills:
+        return only_staff_message(request, "There are no skills registered yet!!!")
     students_with_notes_ids = [skill_note[1] for skill_note in skills_notes]
     num_of_skills = sum(model_skill_counts)
     table = []
@@ -391,3 +404,16 @@ def subject_skill_table(request, grade_id, section_id, group_id, subject_id):
             "group_id": group_id,
         },
     )
+
+
+def chose_subject_for_skill_table(request, grade_id, section_id, group_id):
+    if not request.user.is_staff:
+        return only_staff_message(request)
+    if request.method == "POST":
+        data = request.POST
+        if "subject" in data:
+            return redirect(
+                "subject_skill_table", grade_id, section_id, group_id, data["subject"]
+            )
+    subjects = Subject.objects.filter(grade_id=grade_id)
+    return render(request, "chose_skill.html", {"subjects": subjects})
