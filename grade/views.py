@@ -27,6 +27,15 @@ from .models import (
 )
 
 
+def only_staff_message(request):
+    messages.add_message(
+        request,
+        messages.WARNING,
+        message="you dont have the permission to Enter this page!!",
+    )
+    return redirect("index")
+
+
 def validate_digit_length(national_id):
     return national_id.isdigit() and len(national_id) == 10
 
@@ -85,7 +94,7 @@ def profile(request):
 def absence_table(request, grade_id, section_id, group_id):
     # make sure only staff can reach this page
     if not request.user.is_staff:
-        return redirect("index")
+        return only_staff_message(request)
 
     if request.method == "POST":
         data = request.POST
@@ -123,12 +132,7 @@ def absence_table(request, grade_id, section_id, group_id):
 
 def chose_grade(request):
     if not request.user.is_staff:
-        messages.add_message(
-            request,
-            messages.WARNING,
-            message="you dont have the permission to Enter this page!!",
-        )
-        return redirect("index")
+        return only_staff_message(request)
     if request.GET:
         data = request.GET
         return redirect(data["page"], data["grade"], data["section"], data["group"])
@@ -175,8 +179,7 @@ def chose_grade(request):
 def edit_student_information(request, student_id):
     # Make sure only staff can reach this page.
     if not request.user.is_staff:
-        redirect("index")
-
+        return only_staff_message(request)
     student = Student.objects.get(id=student_id)
 
     if request.method == "POST":
@@ -234,12 +237,7 @@ def edit_student_information(request, student_id):
 
 def participation_table(request, grade_id, section_id, group_id):
     if not request.user.is_staff:
-        messages.add_message(
-            request,
-            messages.WARNING,
-            message="you dont have the permission to Enter this page!!",
-        )
-        return redirect("index")
+        return only_staff_message(request)
     if request.method == "POST":
         data = request.POST
         participation = data.getlist("participations")
@@ -286,13 +284,16 @@ def participation_table(request, grade_id, section_id, group_id):
 
 def skills_table(request, grade_id, section_id, group_id, skill_id):
     if not request.user.is_staff:
-        messages.add_message(
-            request,
-            messages.WARNING,
-            message="you dont have the permission to Enter this page!!",
-        )
-        return redirect("index")
+        return only_staff_message(request)
+    grade = get_object_or_404(Grade, id=grade_id)
+    section = get_object_or_404(Section, id=section_id)
+    if group_id != 0:
+        group = Group.objects.get(id=group_id)
+        students = Student.objects.filter(group=group, grade=grade, section=section)
+    else:
+        students = Student.objects.filter(grade=grade, section=section)
     skill = get_object_or_404(Skill, id=skill_id)
+    skill_notes = SkillNote.objects.filter(student_id__in=(0, 0))
     if request.method == "POST":
         data = request.POST
         skills = data.getlist("skills")
@@ -312,17 +313,6 @@ def skills_table(request, grade_id, section_id, group_id, skill_id):
             section_id=section_id,
             group_id=group_id,
         )
-    grade = Grade.objects.get(id=grade_id)
-    section = Section.objects.get(id=section_id)
-    if group_id != 0:
-        group = Group.objects.get(id=group_id)
-        students = Student.objects.annotate(p_count=Count("participation")).filter(
-            group=group, grade=grade, section=section
-        )
-    else:
-        students = Student.objects.annotate(p_count=Count("participation")).filter(
-            grade=grade, section=section
-        )
     skill_options = SkillOption.objects.all()
     return render(
         request,
@@ -338,6 +328,8 @@ def skills_table(request, grade_id, section_id, group_id, skill_id):
 
 
 def chose_skill(request, grade_id, section_id, group_id):
+    if not request.user.is_staff:
+        return only_staff_message(request)
     if request.method == "POST":
         data = request.POST
         if "subject" in data:
@@ -351,7 +343,7 @@ def chose_skill(request, grade_id, section_id, group_id):
     return render(request, "chose_skill.html", {"subjects": subjects})
 
 
-def subject_skill_table(request, grade_id, section_id,group_id, subject_id):
+def subject_skill_table(request, grade_id, section_id, group_id, subject_id):
     subject = get_object_or_404(Subject, id=subject_id)
     grade = get_object_or_404(Grade, id=grade_id)
     section = get_object_or_404(Section, id=section_id)
@@ -370,16 +362,16 @@ def subject_skill_table(request, grade_id, section_id,group_id, subject_id):
     model_skill_counts = [len(model_skills) for model_skills in skills]
     skills = [x for y in skills for x in y]
     skills_notes = SkillNote.objects.filter(student_id__in=students_ids).values_list(
-        "skill_id",
-        "student_id",
-        "skill_option__name"
+        "skill_id", "student_id", "skill_option__name"
     )
     students_with_notes_ids = [skill_note[1] for skill_note in skills_notes]
     num_of_skills = sum(model_skill_counts)
     table = []
     skills_ids = [skill[0] for skill in skills]
     for student in students:
-        row = ["____", ] * (num_of_skills + 1)
+        row = [
+            "____",
+        ] * (num_of_skills + 1)
         row[0] = student[1]
         if student[0] in students_with_notes_ids:
             student_notes = skills_notes.filter(student__id=student[0])
@@ -396,6 +388,6 @@ def subject_skill_table(request, grade_id, section_id,group_id, subject_id):
             "subject": subject,
             "grade": grade,
             "section": section,
-            "group_id":group_id,
+            "group_id": group_id,
         },
     )
