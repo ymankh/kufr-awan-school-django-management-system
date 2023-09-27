@@ -2,7 +2,7 @@
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
     <data-source source="LOCAL" name="db" uuid="52a4a8a7-ec66-48f4-921c-f84932b0d4d9">
-      <driver-ref>b5b94d60-f15d-49fb-be5f-d0ab3e2bd28e</driver-ref>
+      <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:C:\Users\YAMAN.AzureAD\Documents\GitHub\kufr-awan-school-django-management-system\db.sqlite3</jdbc-url>
