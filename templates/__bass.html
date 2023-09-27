@@ -59,7 +59,8 @@
     </nav>
     {% if messages %}
         {% for message in messages %}
-            <div class="container">
+            <div class="mt-4 container fixed-top">
+                <div class="m-4"></div>
                 <div class="alert alert-{{ message.tags }} alert-dismissible fade show mt-2" role="{{ message.tags }}">
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>

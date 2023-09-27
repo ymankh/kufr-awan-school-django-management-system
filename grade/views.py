@@ -1,13 +1,11 @@
 from random import shuffle
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import authenticate
 from django.contrib import messages
 from django.utils import timezone
-from django.db.models import Count
-from django.contrib.admin.views.decorators import staff_member_required
+from django.db.models import Count, QuerySet
 from django.shortcuts import get_object_or_404
 from .models import (
     Student,
@@ -221,7 +219,7 @@ def edit_student_information(request, student_id):
                     note=data["note_text"],
                 ).save()
         return redirect("student_information_edit", student_id=student_id)
-    participations = Participation.objects.select_related(
+    participations: QuerySet[Participation] = Participation.objects.select_related(
         "participation_option", "participation_option__note_type"
     ).filter(student=student)
     return render(
@@ -294,9 +292,11 @@ def skills_table(request, grade_id, section_id, group_id, skill_id):
         group = Group.objects.get(id=group_id)
         students = Student.objects.filter(
             group=group, grade=grade, section=section
-        ).values_list("id", "name")
+        ).values_list("id", "full_name")
     else:
-        students = Student.objects.filter(grade=grade, section=section)
+        students = Student.objects.values_list("id", "full_name").filter(
+            grade=grade, section=section
+        )
     skill = get_object_or_404(Skill, id=skill_id)
     if request.method == "POST":
         data = request.POST
@@ -324,12 +324,25 @@ def skills_table(request, grade_id, section_id, group_id, skill_id):
             subject_id=Skill.objects.get(id=skill_id).model.subject.pk,
         )
     skill_options = SkillOption.objects.all()
+    students_with_notes_ids = [student[0] for student in students]
+    skill_notes = SkillNote.objects.values_list("student_id", "skill_option_id").filter(
+        student_id__in=students_with_notes_ids, skill=skill
+    )
     table = []
+    skill_student_ids = [skill_note[0] for skill_note in skill_notes]
+    for student in students:
+        row = [student, -1]
+        # get the option of the id of the skill option if exist
+        if student[0] in skill_student_ids:
+            row[1] = skill_notes[skill_student_ids.index(student[0])][1]
+        table.append(row)
+    print(skill_student_ids)
+
     return render(
         request,
         "skill.html",
         context={
-            "students": students,
+            "table": table,
             "participation_options": skill_options,
             "grade": grade,
             "section": section,
@@ -365,18 +378,20 @@ def subject_skill_table(request, grade_id, section_id, group_id, subject_id):
     models = SubjectModel.objects.filter(subject_id=subject_id).values_list(
         "id", "name"
     )
-    models_ids = [model[0] for model in models]
     skills = [
-        Skill.objects.filter(model_id=model_id).values_list("id", "name")
-        for model_id in models_ids
+        Skill.objects.values_list("id", "name").filter(model_id=model[0])
+        for model in models
     ]
-    model_skill_counts = [len(model_skills) for model_skills in skills]
-    skills = [x for y in skills for x in y]
-    skills_notes = SkillNote.objects.filter(student_id__in=students_ids).values_list(
-        "skill_id", "student_id", "skill_option__name"
-    )
     if not skills:
         return only_staff_message(request, "There are no skills registered yet!!!")
+    # to get the number of column for each model.
+    model_skill_counts = [len(model_skills) for model_skills in skills]
+    # Make the skill set flat.
+    skills = [x for y in skills for x in y]
+    skills_notes = SkillNote.objects.values_list(
+        "skill_id", "student_id", "skill_option__name"
+    ).filter(student_id__in=students_ids)
+
     students_with_notes_ids = [skill_note[1] for skill_note in skills_notes]
     num_of_skills = sum(model_skill_counts)
     table = []
@@ -387,7 +402,7 @@ def subject_skill_table(request, grade_id, section_id, group_id, subject_id):
         ] * (num_of_skills + 1)
         row[0] = student[1]
         if student[0] in students_with_notes_ids:
-            student_notes = skills_notes.filter(student__id=student[0])
+            student_notes = [skill_note for skill_note in skills_notes if skill_note[1]==student[0]]
             for skill_note in student_notes:
                 row[skills_ids.index(skill_note[0]) + 1] = skill_note[2]
         table.append(row)

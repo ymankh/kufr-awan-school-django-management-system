@@ -246,11 +246,12 @@ class SkillOption(models.Model):
     name = models.CharField(max_length=255)
     type = models.ForeignKey(StudentNoteType, null=True, on_delete=models.SET_NULL)
     value = models.IntegerField(blank=True, null=True, default=1)
+
     def __str__(self):
         return self.name
+
     class Meta:
         ordering = ['-value']
-        
 
 
 class Skill(models.Model):
@@ -273,6 +274,6 @@ class SkillNote(models.Model):
 
     def __str__(self) -> str:
         return f"{self.student} {self.skill_option}"
-    
+
     class Meta:
         unique_together = ["student", "skill"]

@@ -16,17 +16,26 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for student in students %}
+                {% for row in table %}
                     <tr>
                         <td scope="row">{{ forloop.counter }}</th>
-                        <td><a href="{% url 'student_information_edit' student_id=student.id %}"
-                               class="link-dark text">{{ student.full_name }}</a>
+                        <td><a href="{% url 'student_information_edit' student_id=row.0.0 %}"
+                               class="link-dark text">{{ row.0.1 }}</a>
                         </td>
                         <td><select class="form-select" aria-label="participation" name="skills">
+                            {% if row.1 == -1 %}
                             <option disabled selected>---</option>
                             {% for p_option in participation_options %}
-                                <option value="{{ student.id }},{{p_option.id}}"> {{ p_option }} </option>
+                                <option value="{{ row.0.0 }},{{p_option.id}}"> {{ p_option }} </option>
                             {% endfor %}
+
+                            {% else %}
+                            {% for p_option in participation_options %}
+                                <option value="{{ row.0.0 }},{{p_option.id}}" {% if row.1 == p_option.id %}selected{% endif %}> {{ p_option }} </option>
+                            {% endfor %}
+                            
+                            {% endif %}
+                            
                         </select></td>
                     </tr>
                 {% endfor %}
